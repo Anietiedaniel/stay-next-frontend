@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const AGENTAPI = axios.create({
-  baseURL: "http://localhost:4000/api",
+  baseURL: "https://stay-next-frontend-production.up.railway.app/api",
   withCredentials: true,
 });
 

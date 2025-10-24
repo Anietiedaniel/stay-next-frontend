@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const ADMINAPI = axios.create({
-  baseURL: "http://localhost:3001/api/admin", // Adjusted baseURL to match backend route
+  baseURL: "https://stay-next-frontend-production.up.railway.app/api/admin", // Adjusted baseURL to match backend route
   withCredentials: true,
 });
 
