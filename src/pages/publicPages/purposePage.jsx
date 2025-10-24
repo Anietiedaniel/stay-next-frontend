@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../sections/purposeSections/purposeNav";
-import purposeCard from "../../sections/purposeSections/PurposeCard";
+import purposeCard from "../../sections/purposeSections/purposeCard";
 import PropertiesNav from "../../sections/propertiesection/propertiesNav";
 
 const adImages = [
