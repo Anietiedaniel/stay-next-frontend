@@ -12,7 +12,6 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   useEffect(() => {
     const fetchVerification = async () => {
       if (!role) {
-        // Role not loaded or user not authenticated → skip verification fetch
         setVerifLoading(false);
         return;
       }
@@ -24,12 +23,11 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
           setVerificationStatus(status.toLowerCase());
         } catch (err) {
           console.error("Failed to fetch agent verification:", err);
-          setVerificationStatus("pending"); // fallback
+          setVerificationStatus("pending");
         } finally {
           setVerifLoading(false);
         }
       } else {
-        // Non-agent roles → nothing to fetch
         setVerifLoading(false);
       }
     };
@@ -37,7 +35,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     fetchVerification();
   }, [role]);
 
-  // Show loading while auth or verification data is loading
+  // ===== SHOW LOADING SCREEN =====
   if (loading || verifLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -46,32 +44,42 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     );
   }
 
-  // Not authenticated → redirect to login
+  // ===== AUTH CHECK =====
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // New users must set role (except superadmin and admin)
-  if (user?.isNewUser && role !== "superadmin" && role !== "admin" && location.pathname !== "/set-role") {
+  // ===== NEW USER ROLE SETUP =====
+  if (
+    user?.isNewUser &&
+    role !== "superadmin" &&
+    role !== "admin" &&
+    location.pathname !== "/set-role"
+  ) {
     return <Navigate to="/set-role" replace />;
   }
 
-  // Role-based access control
+  // ===== ROLE-BASED ACCESS CONTROL =====
   if (allowedRoles.length && !allowedRoles.includes(role)) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // Agent verification redirects
+  // ===== AGENT VERIFICATION FLOW =====
   if (role === "agent") {
+    // Unverified or rejected → go to policy
     if (
       (verificationStatus === "pending" || verificationStatus === "rejected") &&
+      location.pathname !== "/policy" &&
       location.pathname !== "/agent-verification"
     ) {
-      return <Navigate to="/agent-verification" replace />;
+      return <Navigate to="/policy" replace />;
     }
+
+    // Verified agent — just stay wherever inside /agent-dashboard/*
+    // ✅ No redirect needed since default route already points to /overview
   }
 
-  // Approved or non-agent → render children
+  // ===== RENDER CHILDREN =====
   return children;
 };
 

@@ -13,9 +13,9 @@ const SelectRole = () => {
       case 'visitor':
         return '/policy';
       case 'agent':
-        return '/agent-verification';
+        return '/policy';
       case 'handyman':
-        return '/handyman-verification';
+        return '/policy';
       default:
         return '/';
     }

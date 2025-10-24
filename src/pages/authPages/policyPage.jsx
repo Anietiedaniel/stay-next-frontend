@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth"; // your auth context
 
 export default function PolicyPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [agreed, setAgreed] = useState(false);
   const [role, setRole] = useState("");
 
   useEffect(() => {
     if (user?.role) setRole(user.role.toLowerCase());
   }, [user]);
-
-  console.log(user.role)
 
   // ===== POLICIES =====
   const policies = {
@@ -55,8 +55,16 @@ export default function PolicyPage() {
   };
 
   const activePolicy = policies[role] || [];
-  console.log(activePolicy)
-  console.log("role :", role)
+
+  // ===== Handle Continue =====
+  const handleContinue = () => {
+    if (!agreed) return;
+    if (role === "agent") {
+      navigate("/agent-verification");
+    } else {
+      navigate("/dashboard");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-10 px-4">
@@ -96,6 +104,7 @@ export default function PolicyPage() {
 
         {/* Continue Button */}
         <button
+          onClick={handleContinue}
           disabled={!agreed}
           className={`mt-6 w-full py-3 rounded-lg text-white font-semibold transition ${
             agreed

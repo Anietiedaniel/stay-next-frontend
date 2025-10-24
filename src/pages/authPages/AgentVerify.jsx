@@ -58,7 +58,7 @@ const AgentVerification = () => {
 
         if (v?.status === "approved") {
           modalTimeoutRef.current = setTimeout(() => {
-            navigate("/policy", { replace: true });
+            navigate("/agent-dashboard/overview", { replace: true });
           }, 1000);
         }
       } catch (err) {
