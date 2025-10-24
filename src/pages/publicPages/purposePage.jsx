@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../sections/purposeSections/purposeNav";
-import PurposeCard from "../../sections/purposeSections/PurposeCard";
-import PropertiesNav from "../../sections/propertiesection/PropertiesNav";
+import purposeCard from "../../sections/purposeSections/PurposeCard";
+import PropertiesNav from "../../sections/propertiesection/propertiesNav";
 
 const adImages = [
   "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?fit=crop&w=300&h=600",

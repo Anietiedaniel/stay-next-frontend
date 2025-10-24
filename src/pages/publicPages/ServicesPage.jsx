@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import PageHeader from '../../sections/servicesections/PageHeader';
-import WorkersSection from '../../sections/servicesections/workersSection';
-import WorkShowcase from '../../sections/servicesections/WorkShowcase';
+import PageHeader from '../../sections/Servicesections/PageHeader';
+import WorkersSection from '../../sections/Servicesections/workersSection';
+import WorkShowcase from '../../sections/Servicesections/WorkShowcase';
 import '../../styles/globalStyles.css';
 
 const allWorkers = [
