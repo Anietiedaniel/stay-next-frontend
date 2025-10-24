@@ -10,7 +10,7 @@ import ForgotPassword from '../pages/authPages/ForgotPassword';
 import ResetPassword from '../pages/authPages/ResetPassword';
 import AgentVerification from '../pages/authPages/AgentVerify';
 import SelectRole from '../pages/authPages/selectRole';
-import PolicyPage from '../pages/authpages/policyPage'
+import PolicyPage from '../pages/authPages/policyPage'
 import GuestRoute from '../components/GuestRoute';
 import ProtectedRoute from '../components/ProtectedRoute';
 
