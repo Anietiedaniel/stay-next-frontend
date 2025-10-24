@@ -89,6 +89,6 @@ const dashboardRoutes = [
       { path: "properties/*", element: <VisitorProperties /> },
     ],
   },
-];
+]
 
 export default dashboardRoutes;
