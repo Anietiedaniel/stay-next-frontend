@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PropertyShowcaseCard from "../../sections/propertiesection/PropertyShowcaseCard";
 import Navbar from "../../sections/purposeSections/purposeNav";
-import PropertiesNav from "../../sections/propertiesection/PropertiesNav";
+import PropertiesNav from "../../sections/propertiesection/propertiesNav";
 
 const adImages = [
   "https://images.unsplash.com/photo-1599423300746-b62533397364?fit=crop&w=300&h=600",
