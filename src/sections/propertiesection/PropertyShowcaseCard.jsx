@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PropertyFeatures from "./PropertyFeatures";
+import PropertyFeatures from "./propertyFeatures";
 import AGENTAPI from "../../utils/agentaxios";
 import "../../styles/badge.css";
 import LikeLove from "../../components/ui/LikeLove";
