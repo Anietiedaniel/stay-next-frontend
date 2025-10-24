@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth"; // your auth context
 
-export default function PolicyPage() {
+const PolicyPage = ()=> {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [agreed, setAgreed] = useState(false);
@@ -118,3 +118,6 @@ export default function PolicyPage() {
     </div>
   );
 }
+
+
+export default PolicyPage
