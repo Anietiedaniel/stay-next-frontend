@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../sections/purposeSections/purposeNav";
-import propertiesNav from "../../sections/propertiesection/PropertiesNav";
+import propertiesNav from "../../sections/propertiesection/propertiesNav";
 import ResultCard from "../../sections/searchSections/ResultCard";
 import AGENTAPI from "../../utils/agentaxios";
 
