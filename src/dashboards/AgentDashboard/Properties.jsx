@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AddPropertyModal from "./Properties/AddPropertiesModal";
 import EditPropertyModal from "./Properties/EditPropertiesModal";
-import PropertySlider from "./Properties/PropertySlicer"; 
+import PropertySlider from "./Properties/propertySlicer"; 
 import AGENTAPI from "../../utils/agentaxios";
 
 export default function Properties() {
