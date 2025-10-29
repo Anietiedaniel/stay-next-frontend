@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const AGENTAPI = axios.create({
-  baseURL: " https://proxy-service-0s6s.onrender.com/api",
+  baseURL: "https://stay-next-agent-service.onrender.com/api",
   withCredentials: true,
 });
 
