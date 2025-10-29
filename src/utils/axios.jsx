@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://stay-next-auth-service-4.onrender.com/api",
+  baseURL: " https://proxy-service-0s6s.onrender.com",
   withCredentials: true,
 });
 
@@ -16,7 +16,7 @@ API.interceptors.request.use((config) => {
 
 
 const AGENTAPI = axios.create({
-  baseURL: "http://localhost:4000/api",
+  baseURL: " https://proxy-service-0s6s.onrender.com",
   withCredentials: true,
 });
 
