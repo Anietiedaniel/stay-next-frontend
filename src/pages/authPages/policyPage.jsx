@@ -59,10 +59,17 @@ const PolicyPage = ()=> {
   // ===== Handle Continue =====
   const handleContinue = () => {
     if (!agreed) return;
+
     if (role === "agent") {
       navigate("/agent-verification");
-    } else {
-      navigate("/dashboard");
+    } else if(role === "visitor"){
+      navigate("/visitor-dashboard/overview");
+    } else if (role === "agency") {
+      navigate("/agency-verification");
+    } else if(role === "handyman"){
+      navigate("/handyman-dashboard/overview");
+    }else {
+      navigate("/");
     }
   };
 
