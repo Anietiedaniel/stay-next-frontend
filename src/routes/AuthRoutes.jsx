@@ -80,12 +80,9 @@ const authRoutes = [
   
 { 
   path: '/verify-email', 
-  element: (
-    <GuestRoute>
-      <VerifyEmail />
-    </GuestRoute>
-  ),
+  element: <VerifyEmail />, // Public route, no wrapper
 },
+
 
 
   { path: '/unauthorized', element: <div>Unauthorized</div> },
