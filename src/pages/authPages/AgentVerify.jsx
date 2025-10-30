@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import AGENTAPI from "../../utils/agentaxios"; // fixed named import
+import useAuth from "../../hooks/useAuth";
 import logo from "../../assets/images/logo.png";
 import { NIGERIA_STATES } from "../../utils/states";
 
 const AgentVerification = () => {
+  const {user} = useAuth();
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -36,11 +38,16 @@ const AgentVerification = () => {
     };
   }, []);
 
+  // ✅ Fetch user’s verification info
   useEffect(() => {
     const fetchVerification = async () => {
+      if (!user?._id) return;
+
       try {
         setLoading(true);
-        const res = await AGENTAPI.get("/agents/verification/my");
+        const res = await AGENTAPI.get("/agents/verification/my", {
+          params: { userId: user._id },
+        });
         const v = res.data?.profile || null;
         setVerificationData(v);
 
@@ -62,13 +69,13 @@ const AgentVerification = () => {
           }, 1000);
         }
       } catch (err) {
-        console.error("Error fetching verification: ", err);
+        console.error("❌ Error fetching verification:", err);
       } finally {
         setLoading(false);
       }
     };
     fetchVerification();
-  }, [navigate]);
+  }, [navigate, user?._id]);
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -111,8 +118,10 @@ const AgentVerification = () => {
         formData.append("agencyLogo", agencyLogo);
       }
 
+      // ✅ Only one post request — Agent Service handles userId internally
       const res = await AGENTAPI.post("/agents/verification/submit", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        params: { userId: user._id }, // send user ID to backend
       });
 
       const v = res.data?.profile || null;
@@ -121,13 +130,14 @@ const AgentVerification = () => {
       setModalMessage("✅ Submitted successfully. Verification pending...");
       modalTimeoutRef.current = setTimeout(() => setShowModal(false), 3000);
     } catch (err) {
-      console.error(err);
+      console.error("❌ Submission failed:", err);
       setModalMessage("❌ Submission failed. Try again.");
       modalTimeoutRef.current = setTimeout(() => setShowModal(false), 2500);
     } finally {
       setLoading(false);
     }
   };
+
 
   // Status page
   if (verificationData) {
