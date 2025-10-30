@@ -7,6 +7,8 @@ import { NIGERIA_STATES } from "../../utils/states";
 
 const AgentVerification = () => {
   const {user} = useAuth();
+
+  console.log(user)
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
