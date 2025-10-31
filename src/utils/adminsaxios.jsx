@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://stay-next-auth-service-1.onrender.com/api/auth/admins/",
+  baseURL: "https://stay-next-admin-service.onrender.com/api/admin/",
   withCredentials: true,
 });
 

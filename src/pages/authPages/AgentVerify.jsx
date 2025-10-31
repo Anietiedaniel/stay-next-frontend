@@ -33,7 +33,7 @@ const AgentVerification = () => {
 
   // Verification data
   const [verificationData, setVerificationData] = useState(null);
-
+  
   useEffect(() => {
     return () => {
       if (modalTimeoutRef.current) clearTimeout(modalTimeoutRef.current);
@@ -44,13 +44,18 @@ const AgentVerification = () => {
   useEffect(() => {
     const fetchVerification = async () => {
       if (!user?._id) return;
+        const res2 = await AGENTAPI.get("/agents/verification/my", {
+          params: { userId: user._id },
+        });
 
+        console.log("apg: ", res2)
       try {
         setLoading(true);
         const res = await AGENTAPI.get("/agents/verification/my", {
           params: { userId: user._id },
         });
         const v = res.data?.profile || null;
+        console.log("ap: ", v)
         setVerificationData(v);
 
         if (v?.status === "rejected") {
@@ -71,6 +76,7 @@ const AgentVerification = () => {
           }, 1000);
         }
       } catch (err) {
+        console.log("apg: ", res2)
         console.error("❌ Error fetching verification:", err);
       } finally {
         setLoading(false);
