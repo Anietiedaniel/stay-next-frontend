@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import API from "../../utils/axios";
 import logo from "../../assets/images/logo.png";
-import GlowingRealEstateLoader from "../../utils/loader"; // adjust path if needed
+import GlowingRealEstateLoader from "../../utils/loader"; // ✅ loader with msg support
 
 const Register = () => {
   const navigate = useNavigate();
@@ -22,6 +22,11 @@ const Register = () => {
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  // ✅ Loader shown when registering
+  if (loading) {
+    return <GlowingRealEstateLoader msg="Registering your account..." />;
+  }
 
   // ✅ Manual Register
   const handleSubmit = async (e) => {
@@ -70,7 +75,6 @@ const Register = () => {
 
       const user = res.data.user;
 
-      // Redirect new users to /set-role
       if (user?.isNewUser) {
         navigate("/set-role");
         return;
@@ -106,9 +110,6 @@ const Register = () => {
       className="bg-gray-200 text-white min-h-screen flex items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: "url('/bg-realestate.jpg')" }}
     >
-      {/* ✅ Loader */}
-      {loading && <GlowingRealEstateLoader message="Processing..." logoSize={80} />}
-
       <div className="bg-white shadow-lg p-6 rounded-2xl max-w-md w-full border border-gray-100 relative z-10">
         <div className="flex flex-col items-center mb-6">
           <img src={logo} alt="Logo" className="w-24 h-24 mb-2" />
@@ -116,7 +117,9 @@ const Register = () => {
         </div>
 
         {successMessage && (
-          <p className="text-green-600 font-semibold mb-4 text-center animate-fade">{successMessage}</p>
+          <p className="text-green-600 font-semibold mb-4 text-center animate-fade">
+            {successMessage}
+          </p>
         )}
 
         {error.length > 0 && (

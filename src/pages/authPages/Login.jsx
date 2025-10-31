@@ -76,8 +76,9 @@ const Login = () => {
   return (
     <>
       {/* ✅ Loader */}
-      {loading && <GlowingRealEstateLoader message="Logging you in..." logoSize={80} />}
-
+      {loading ? (
+        <GlowingRealEstateLoader msg="Registering your account..." />
+      ) : (
       <div
         className="bg-gray-200 text-white min-h-screen flex items-center justify-center bg-cover bg-center"
         style={{ backgroundImage: "url('/bg-realestate.jpg')" }}
@@ -173,7 +174,8 @@ const Login = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </>
   );
 };
