@@ -16,13 +16,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await API.get("/auth/getMe");
       const u = res.data.user || null;
-      if (u) {
-        const normalized = { ...u, _id: u._id || u.id }; // ensure _id exists
+
+      if (u && u._id) {
+        const normalized = { ...u, _id: u._id || u.id }; // normalize
         setUser(normalized);
         setRole(normalized.role || "");
-        localStorage.setItem("user", JSON.stringify(normalized)); // update localStorage
+        localStorage.setItem("user", JSON.stringify(normalized));
         return normalized;
       } else {
+        // User not found in backend → clear localStorage
         setUser(null);
         setRole("");
         localStorage.removeItem("user");
@@ -30,6 +32,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       console.warn("fetchUser failed", err);
+      // Clear localStorage on fetch error (assume user might not exist)
       setUser(null);
       setRole("");
       localStorage.removeItem("user");
@@ -43,10 +46,22 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsed = JSON.parse(storedUser);
-      const normalized = { ...parsed, _id: parsed._id || parsed.id }; // normalize
-      setUser(normalized);
-      setRole(normalized.role || "");
-      setLoading(false);
+      const normalized = { ...parsed, _id: parsed._id || parsed.id };
+
+      // Immediately check with backend if user still exists
+      fetchUser().then((fetched) => {
+        if (!fetched) {
+          // Backend says no user → clear localStorage and state
+          setUser(null);
+          setRole("");
+          localStorage.removeItem("user");
+        } else {
+          // Backend verified → use stored user
+          setUser(normalized);
+          setRole(normalized.role || "");
+        }
+        setLoading(false);
+      });
     } else {
       fetchUser();
     }
@@ -79,7 +94,7 @@ export const AuthProvider = ({ children }) => {
   // Logout
   // =============================
   const logout = async () => {
-    await API.post("/auth/logout");
+    await API.post("/auth/logout").catch(() => {}); // ignore errors
     setUser(null);
     setRole("");
     localStorage.removeItem("user");
