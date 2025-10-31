@@ -1,19 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import AGENTAPI from "../../utils/agentaxios"; // fixed named import
+import AGENTAPI from "../../utils/agentaxios";
 import useAuth from "../../hooks/useAuth";
 import logo from "../../assets/images/logo.png";
 import { NIGERIA_STATES } from "../../utils/states";
 
 const AgentVerification = () => {
-  const {user} = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const modalTimeoutRef = useRef(null);
 
-  console.log(user)
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const modalTimeoutRef = useRef(null);
-  const navigate = useNavigate();
 
   const [hasAgency, setHasAgency] = useState(false);
 
@@ -31,31 +30,27 @@ const AgentVerification = () => {
   const [state, setState] = useState("");
   const [otherInfo, setOtherInfo] = useState("");
 
-  // Verification data
   const [verificationData, setVerificationData] = useState(null);
-  
+
+  // Cleanup modal timers
   useEffect(() => {
     return () => {
       if (modalTimeoutRef.current) clearTimeout(modalTimeoutRef.current);
     };
   }, []);
 
-  // ✅ Fetch user’s verification info
+  // Fetch user verification info
   useEffect(() => {
     const fetchVerification = async () => {
       if (!user?._id) return;
-        const res2 = await AGENTAPI.get("/agents/verification/my", {
-          params: { userId: user._id },
-        });
+      setLoading(true);
 
-        console.log("apg: ", res2)
       try {
-        setLoading(true);
         const res = await AGENTAPI.get("/agents/verification/my", {
           params: { userId: user._id },
         });
+
         const v = res.data?.profile || null;
-        console.log("ap: ", v)
         setVerificationData(v);
 
         if (v?.status === "rejected") {
@@ -76,15 +71,16 @@ const AgentVerification = () => {
           }, 1000);
         }
       } catch (err) {
-        console.log("apg: ", res2)
         console.error("❌ Error fetching verification:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchVerification();
-  }, [navigate, user?._id]);
 
+    fetchVerification();
+  }, [user?._id, navigate]);
+
+  // File handlers
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     setAgencyLogo(file);
@@ -97,12 +93,20 @@ const AgentVerification = () => {
     setPreviewId(URL.createObjectURL(file));
   };
 
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!user?._id) {
+      alert("User not loaded yet. Please wait...");
+      return;
+    }
+
     if (!nationalId || !state || !phone) {
       alert("Please fill all required fields");
       return;
     }
+
     if (hasAgency && (!agencyName || !agencyEmail || !agencyPhone || !agencyLogo)) {
       alert("Please fill all agency details");
       return;
@@ -110,8 +114,8 @@ const AgentVerification = () => {
 
     try {
       setLoading(true);
-      setModalMessage("Submitting...");
       setShowModal(true);
+      setModalMessage("Submitting...");
 
       const formData = new FormData();
       formData.append("nationalId", nationalId);
@@ -126,10 +130,9 @@ const AgentVerification = () => {
         formData.append("agencyLogo", agencyLogo);
       }
 
-      // ✅ Only one post request — Agent Service handles userId internally
       const res = await AGENTAPI.post("/agents/verification/submit", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        params: { userId: user._id }, // send user ID to backend
+        params: { userId: user._id },
       });
 
       const v = res.data?.profile || null;
@@ -146,8 +149,7 @@ const AgentVerification = () => {
     }
   };
 
-
-  // Status page
+  // If verification exists — show status page
   if (verificationData) {
     const status = verificationData.status.toLowerCase();
     if (["pending", "approved", "rejected"].includes(status)) {
@@ -179,9 +181,7 @@ const AgentVerification = () => {
 
   return (
     <>
-      <div
-        className="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center p-6"
-      >
+      <div className="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center p-6">
         <div className="bg-white backdrop-blur-md bg-opacity-90 shadow-xl p-10 rounded-3xl max-w-6xl w-full transition-all duration-300">
           <div className="flex flex-col items-center mb-6">
             <img src={logo} alt="Logo" className="w-24 h-24 mb-3" />
@@ -204,52 +204,32 @@ const AgentVerification = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            <div
-              className={`grid gap-8 ${
-                hasAgency ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 justify-items-center"
-              }`}
-            >
+            <div className={`grid gap-8 ${hasAgency ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 justify-items-center"}`}>
               {hasAgency && (
                 <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl shadow-lg w-full hover:scale-[1.02] transition transform">
                   <h3 className="text-xl font-semibold text-green-700 text-center mb-4">
                     Agency Details
                   </h3>
-                  {/** Agency Inputs **/}
                   <InputField label="Agency Name *" value={agencyName} setValue={setAgencyName} />
                   <InputField label="Agency Email *" value={agencyEmail} setValue={setAgencyEmail} type="email" />
                   <InputField label="Agency Phone *" value={agencyPhone} setValue={setAgencyPhone} />
-
-                  <FileUpload
-                    label="Upload Agency Logo"
-                    file={agencyLogo}
-                    preview={previewLogo}
-                    handleChange={handleLogoChange}
-                    bgColor="green"
-                  />
+                  <FileUpload label="Upload Agency Logo" file={agencyLogo} preview={previewLogo} handleChange={handleLogoChange} bgColor="green" />
                 </div>
               )}
 
               <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl shadow-lg w-full max-w-md hover:scale-[1.02] transition transform">
                 <h3 className="text-xl font-semibold text-gray-800 text-center mb-4">Personal Information</h3>
-                {/** Personal Inputs **/}
                 <InputField label="Phone *" value={phone} setValue={setPhone} />
                 <SelectField label="State *" value={state} setValue={setState} options={NIGERIA_STATES} />
                 <TextAreaField label="Other Info" value={otherInfo} setValue={setOtherInfo} />
-
-                <FileUpload
-                  label="Upload National ID"
-                  file={nationalId}
-                  preview={previewId}
-                  handleChange={handleIdChange}
-                  bgColor="gray"
-                />
+                <FileUpload label="Upload National ID" file={nationalId} preview={previewId} handleChange={handleIdChange} bgColor="gray" />
               </div>
             </div>
 
             <div className="flex justify-center">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !user?._id}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
               >
                 {loading ? "Submitting..." : "Submit Verification"}
@@ -270,7 +250,7 @@ const AgentVerification = () => {
   );
 };
 
-// Reusable input components
+// Reusable Inputs
 const InputField = ({ label, value, setValue, type = "text" }) => (
   <div className="mb-4">
     <label className="block text-gray-700 mb-1 font-medium">{label}</label>
@@ -304,9 +284,7 @@ const SelectField = ({ label, value, setValue, options }) => (
     >
       <option value="">Select a state</option>
       {options.map((opt) => (
-        <option key={opt} value={opt}>
-          {opt}
-        </option>
+        <option key={opt} value={opt}>{opt}</option>
       ))}
     </select>
   </div>
@@ -314,25 +292,12 @@ const SelectField = ({ label, value, setValue, options }) => (
 
 const FileUpload = ({ label, file, preview, handleChange, bgColor }) => (
   <div className="flex flex-col items-center mb-4">
-    <input
-      type="file"
-      id={label}
-      accept="image/*"
-      onChange={handleChange}
-      className="hidden"
-    />
-    <label
-      htmlFor={label}
-      className={`cursor-pointer bg-${bgColor}-600 hover:bg-${bgColor}-700 text-white px-4 py-2 rounded-lg shadow transition`}
-    >
+    <input type="file" id={label} accept="image/*" onChange={handleChange} className="hidden" />
+    <label htmlFor={label} className={`cursor-pointer bg-${bgColor}-600 hover:bg-${bgColor}-700 text-white px-4 py-2 rounded-lg shadow transition`}>
       {label}
     </label>
     {preview && (
-      <img
-        src={preview}
-        alt={`${label} Preview`}
-        className="mt-3 h-28 w-28 object-cover rounded-xl shadow-lg transition-all"
-      />
+      <img src={preview} alt={`${label} Preview`} className="mt-3 h-28 w-28 object-cover rounded-xl shadow-lg transition-all" />
     )}
   </div>
 );
