@@ -3,58 +3,81 @@ import AuthContext from "./AuthContext";
 import API from "../utils/axios";
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem("user");
-    return stored ? JSON.parse(stored) : null;
-  });
-  const [role, setRole] = useState(user?.role || "");
-  const [loading, setLoading] = useState(false); // <-- start false to render immediately
+  const [user, setUser] = useState(null);
+  const [role, setRole] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const isAuthenticated = !!user;
 
-  // Fetch current user in background
+  // =============================
+  // Fetch Current User (any role)
+  // =============================
   const fetchUser = async () => {
     try {
       const res = await API.get("/auth/getMe");
       const u = res.data.user || null;
-      setUser(u);
-      setRole(u?.role || "");
-      if (u) localStorage.setItem("user", JSON.stringify(u));
-      return u;
+      if (u) {
+        const normalized = { ...u, _id: u._id || u.id }; // ensure _id exists
+        setUser(normalized);
+        setRole(normalized.role || "");
+        localStorage.setItem("user", JSON.stringify(normalized)); // update localStorage
+        return normalized;
+      } else {
+        setUser(null);
+        setRole("");
+        localStorage.removeItem("user");
+        return null;
+      }
     } catch (err) {
       console.warn("fetchUser failed", err);
       setUser(null);
       setRole("");
       localStorage.removeItem("user");
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!user) fetchUser(); // only fetch if not already in localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser);
+      const normalized = { ...parsed, _id: parsed._id || parsed.id }; // normalize
+      setUser(normalized);
+      setRole(normalized.role || "");
+      setLoading(false);
+    } else {
+      fetchUser();
+    }
   }, []);
 
-  // Normal login
+  // =============================
+  // Login functions
+  // =============================
   const login = async (data) => {
     const res = await API.post("/auth/login", data);
     const u = res.data.user;
-    setUser(u);
-    setRole(u.role);
-    localStorage.setItem("user", JSON.stringify(u));
-    return u;
+    const normalized = { ...u, _id: u._id || u.id };
+    setUser(normalized);
+    setRole(normalized.role);
+    localStorage.setItem("user", JSON.stringify(normalized));
+    return normalized;
   };
 
-  // Super admin login
   const superAdminLogin = async (data) => {
     const res = await API.post("/admins/login", data);
-    const superAdmin = res.data.user;
-    setUser(superAdmin);
-    setRole(superAdmin.role);
-    localStorage.setItem("user", JSON.stringify(superAdmin));
-    return superAdmin;
+    const u = res.data.user;
+    const normalized = { ...u, _id: u._id || u.id };
+    setUser(normalized);
+    setRole(normalized.role);
+    localStorage.setItem("user", JSON.stringify(normalized));
+    return normalized;
   };
 
+  // =============================
   // Logout
+  // =============================
   const logout = async () => {
     await API.post("/auth/logout");
     setUser(null);
@@ -62,41 +85,33 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
-  // Update user
+  // =============================
+  // Update User Info
+  // =============================
   const updateUser = (updated, callback = () => {}) => {
     if (typeof updated === "function") {
       setUser((prev) => {
         const result = updated(prev);
         const merged = { ...(prev || {}), ...(result || {}) };
-        if (result && result._id) {
-          setRole(result.role || "");
-          localStorage.setItem("user", JSON.stringify(result));
-          callback(result);
-          return result;
-        } else {
-          setRole(merged.role || prev?.role || "");
-          localStorage.setItem("user", JSON.stringify(merged));
-          callback(merged);
-          return merged;
-        }
+        const normalized = { ...merged, _id: merged._id || merged.id };
+        setRole(normalized.role || prev?.role || "");
+        localStorage.setItem("user", JSON.stringify(normalized));
+        callback(normalized);
+        return normalized;
       });
-    } else if (updated && updated._id) {
-      setUser(updated);
-      setRole(updated.role || "");
-      localStorage.setItem("user", JSON.stringify(updated));
-      callback(updated);
     } else {
-      setUser((prev) => {
-        const merged = { ...(prev || {}), ...(updated || {}) };
-        setRole(merged.role || prev?.role || "");
-        localStorage.setItem("user", JSON.stringify(merged));
-        callback(merged);
-        return merged;
-      });
+      const merged = { ...(user || {}), ...(updated || {}) };
+      const normalized = { ...merged, _id: merged._id || merged.id };
+      setUser(normalized);
+      setRole(normalized.role || "");
+      localStorage.setItem("user", JSON.stringify(normalized));
+      callback(normalized);
     }
   };
 
-  // Reset password
+  // =============================
+  // Reset Password
+  // =============================
   const resetPassword = async ({ token, newPassword }) => {
     const res = await API.post(`/auth/reset-password/${token}`, { newPassword });
     return res.data;
@@ -117,7 +132,7 @@ export const AuthProvider = ({ children }) => {
         resetPassword,
       }}
     >
-      {children} {/* no more waiting on loading */}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
