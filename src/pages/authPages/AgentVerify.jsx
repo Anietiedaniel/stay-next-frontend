@@ -6,11 +6,13 @@ import logo from "../../assets/images/logo.png";
 import { NIGERIA_STATES } from "../../utils/states";
 
 const AgentVerification = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const modalTimeoutRef = useRef(null);
 
-  // Local state
+  // Load user from localStorage immediately
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const userId = storedUser?._id;
+
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -34,20 +36,18 @@ const AgentVerification = () => {
   const [verificationData, setVerificationData] = useState(null);
 
   // Cleanup modal timer
-  useEffect(() => {
-    return () => {
-      if (modalTimeoutRef.current) clearTimeout(modalTimeoutRef.current);
-    };
+  useEffect(() => () => {
+    if (modalTimeoutRef.current) clearTimeout(modalTimeoutRef.current);
   }, []);
 
-  // Fetch verification data once user is present
+  // Fetch existing verification (optional)
   useEffect(() => {
-    if (!user?._id) return;
+    if (!userId) return;
 
     const fetchVerification = async () => {
       setLoading(true);
       try {
-        const res = await AGENTAPI.get("/agents/verification/my", { params: { userId: user._id } });
+        const res = await AGENTAPI.get("/agents/verification/my", { params: { userId } });
         const v = res.data?.profile || null;
         setVerificationData(v);
 
@@ -64,9 +64,7 @@ const AgentVerification = () => {
         }
 
         if (v?.status === "approved") {
-          modalTimeoutRef.current = setTimeout(() => {
-            navigate("/agent-dashboard/overview", { replace: true });
-          }, 1000);
+          modalTimeoutRef.current = setTimeout(() => navigate("/agent-dashboard/overview", { replace: true }), 1000);
         }
       } catch (err) {
         console.error("Error fetching verification:", err);
@@ -76,7 +74,7 @@ const AgentVerification = () => {
     };
 
     fetchVerification();
-  }, [user, navigate]);
+  }, [userId, navigate]);
 
   // File handlers
   const handleLogoChange = (e) => {
@@ -91,18 +89,14 @@ const AgentVerification = () => {
     setPreviewId(URL.createObjectURL(file));
   };
 
-  // Form submit
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!user?._id) return alert("User not loaded. Please wait...");
+    if (!userId) return alert("User not loaded");
 
-    if (!nationalId || !state || !phone) {
-      return alert("Please fill all required fields");
-    }
-    if (hasAgency && (!agencyName || !agencyEmail || !agencyPhone || !agencyLogo)) {
-      return alert("Please fill all agency details");
-    }
+    if (!nationalId || !state || !phone) return alert("Please fill all required fields");
+    if (hasAgency && (!agencyName || !agencyEmail || !agencyPhone || !agencyLogo)) return alert("Please fill all agency details");
 
     try {
       setLoading(true);
@@ -124,12 +118,10 @@ const AgentVerification = () => {
 
       const res = await AGENTAPI.post("/agents/verification/submit", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        params: { userId: user._id },
+        params: { userId }, // ✅ always present
       });
 
-      const v = res.data?.profile || null;
-      setVerificationData(v);
-
+      setVerificationData(res.data?.profile || null);
       setModalMessage("✅ Submitted successfully. Verification pending...");
       modalTimeoutRef.current = setTimeout(() => setShowModal(false), 3000);
     } catch (err) {
@@ -141,29 +133,19 @@ const AgentVerification = () => {
     }
   };
 
-  // Show verification status if exists
+  // Show verification status
   if (verificationData) {
     const status = verificationData.status?.toLowerCase();
     if (["pending", "approved", "rejected"].includes(status)) {
-      const statusColors = {
-        pending: "bg-yellow-100 text-yellow-700",
-        approved: "bg-green-100 text-green-700",
-        rejected: "bg-red-100 text-red-700",
-      };
-      const statusMessages = {
-        pending: "Your verification is under review.",
-        approved: "✅ Your verification was successful!",
-        rejected: "❌ Your verification was rejected. Please resubmit.",
-      };
+      const statusColors = { pending: "bg-yellow-100 text-yellow-700", approved: "bg-green-100 text-green-700", rejected: "bg-red-100 text-red-700" };
+      const statusMessages = { pending: "Your verification is under review.", approved: "✅ Your verification was successful!", rejected: "❌ Your verification was rejected. Please resubmit." };
 
       return (
         <div className="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center p-6">
           <div className="bg-white backdrop-blur-sm bg-opacity-90 p-8 rounded-3xl shadow-xl max-w-md w-full text-center transition-all duration-300">
             <img src={logo} alt="Logo" className="w-20 h-20 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-2">Verification Status</h2>
-            <div className={`p-4 rounded-lg font-semibold text-lg ${statusColors[status]}`}>
-              {verificationData.status.toUpperCase()}
-            </div>
+            <div className={`p-4 rounded-lg font-semibold text-lg ${statusColors[status]}`}>{verificationData.status.toUpperCase()}</div>
             <p className="mt-4 text-gray-600">{statusMessages[status]}</p>
           </div>
         </div>
@@ -171,13 +153,7 @@ const AgentVerification = () => {
     }
   }
 
-  if (!user?._id) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        Loading user...
-      </div>
-    );
-  }
+  if (!userId) return <div className="flex items-center justify-center h-screen">Loading user...</div>;
 
   return (
     <>
@@ -186,20 +162,13 @@ const AgentVerification = () => {
           <div className="flex flex-col items-center mb-6">
             <img src={logo} alt="Logo" className="w-24 h-24 mb-3" />
             <h2 className="text-3xl font-bold text-center text-gray-800">Agent Verification</h2>
-            <p className="text-gray-500 text-sm text-center">
-              Complete your verification to continue
-            </p>
+            <p className="text-gray-500 text-sm text-center">Complete your verification to continue</p>
           </div>
 
           <div className="mb-6 flex items-center justify-center gap-4">
             <span className="text-gray-700 font-semibold">Do you belong to an agency?</span>
             <label className="inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="form-checkbox h-5 w-5 text-green-600"
-                checked={hasAgency}
-                onChange={() => setHasAgency((s) => !s)}
-              />
+              <input type="checkbox" className="form-checkbox h-5 w-5 text-green-600" checked={hasAgency} onChange={() => setHasAgency(s => !s)} />
             </label>
           </div>
 
@@ -207,19 +176,11 @@ const AgentVerification = () => {
             <div className={`grid gap-8 ${hasAgency ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 justify-items-center"}`}>
               {hasAgency && (
                 <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl shadow-lg w-full hover:scale-[1.02] transition transform">
-                  <h3 className="text-xl font-semibold text-green-700 text-center mb-4">
-                    Agency Details
-                  </h3>
+                  <h3 className="text-xl font-semibold text-green-700 text-center mb-4">Agency Details</h3>
                   <InputField label="Agency Name *" value={agencyName} setValue={setAgencyName} />
                   <InputField label="Agency Email *" value={agencyEmail} setValue={setAgencyEmail} type="email" />
                   <InputField label="Agency Phone *" value={agencyPhone} setValue={setAgencyPhone} />
-                  <FileUpload
-                    label="Upload Agency Logo"
-                    file={agencyLogo}
-                    preview={previewLogo}
-                    handleChange={handleLogoChange}
-                    bgColor="green"
-                  />
+                  <FileUpload label="Upload Agency Logo" file={agencyLogo} preview={previewLogo} handleChange={handleLogoChange} bgColor="green" />
                 </div>
               )}
 
@@ -228,22 +189,12 @@ const AgentVerification = () => {
                 <InputField label="Phone *" value={phone} setValue={setPhone} />
                 <SelectField label="State *" value={state} setValue={setState} options={NIGERIA_STATES} />
                 <TextAreaField label="Other Info" value={otherInfo} setValue={setOtherInfo} />
-                <FileUpload
-                  label="Upload National ID"
-                  file={nationalId}
-                  preview={previewId}
-                  handleChange={handleIdChange}
-                  bgColor="gray"
-                />
+                <FileUpload label="Upload National ID" file={nationalId} preview={previewId} handleChange={handleIdChange} bgColor="gray" />
               </div>
             </div>
 
             <div className="flex justify-center">
-              <button
-                type="submit"
-                disabled={loading || !user?._id}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
-              >
+              <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105">
                 {loading ? "Submitting..." : "Submit Verification"}
               </button>
             </div>
@@ -266,34 +217,21 @@ const AgentVerification = () => {
 const InputField = ({ label, value, setValue, type = "text" }) => (
   <div className="mb-4">
     <label className="block text-gray-700 mb-1 font-medium">{label}</label>
-    <input
-      type={type}
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
-    />
+    <input type={type} value={value} onChange={(e) => setValue(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition" />
   </div>
 );
 
 const TextAreaField = ({ label, value, setValue }) => (
   <div className="mb-4">
     <label className="block text-gray-700 mb-1 font-medium">{label}</label>
-    <textarea
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
-    />
+    <textarea value={value} onChange={(e) => setValue(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition" />
   </div>
 );
 
 const SelectField = ({ label, value, setValue, options }) => (
   <div className="mb-4">
     <label className="block text-gray-700 mb-1 font-medium">{label}</label>
-    <select
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
-    >
+    <select value={value} onChange={(e) => setValue(e.target.value)} className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition">
       <option value="">Select a state</option>
       {options.map((opt) => (
         <option key={opt} value={opt}>{opt}</option>
@@ -305,9 +243,7 @@ const SelectField = ({ label, value, setValue, options }) => (
 const FileUpload = ({ label, file, preview, handleChange, bgColor }) => (
   <div className="flex flex-col items-center mb-4">
     <input type="file" id={label} accept="image/*" onChange={handleChange} className="hidden" />
-    <label htmlFor={label} className={`cursor-pointer bg-${bgColor}-600 hover:bg-${bgColor}-700 text-white px-4 py-2 rounded-lg shadow transition`}>
-      {label}
-    </label>
+    <label htmlFor={label} className={`cursor-pointer bg-${bgColor}-600 hover:bg-${bgColor}-700 text-white px-4 py-2 rounded-lg shadow transition`}>{label}</label>
     {preview && <img src={preview} alt={`${label} Preview`} className="mt-3 h-28 w-28 object-cover rounded-xl shadow-lg transition-all" />}
   </div>
 );
