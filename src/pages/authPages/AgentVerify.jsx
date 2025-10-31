@@ -40,9 +40,9 @@ const AgentVerification = () => {
     };
   }, []);
 
-  // Fetch verification data when user is available
+  // Fetch verification data once user is present
   useEffect(() => {
-    if (!user) return;
+    if (!user?._id) return;
 
     const fetchVerification = async () => {
       setLoading(true);
@@ -95,6 +95,8 @@ const AgentVerification = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!user?._id) return alert("User not loaded. Please wait...");
+
     if (!nationalId || !state || !phone) {
       return alert("Please fill all required fields");
     }
@@ -139,9 +141,9 @@ const AgentVerification = () => {
     }
   };
 
-  // Verification status page
+  // Show verification status if exists
   if (verificationData) {
-    const status = verificationData.status.toLowerCase();
+    const status = verificationData.status?.toLowerCase();
     if (["pending", "approved", "rejected"].includes(status)) {
       const statusColors = {
         pending: "bg-yellow-100 text-yellow-700",
@@ -169,7 +171,7 @@ const AgentVerification = () => {
     }
   }
 
-  if (!user) {
+  if (!user?._id) {
     return (
       <div className="flex items-center justify-center h-screen">
         Loading user...
@@ -202,9 +204,7 @@ const AgentVerification = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            <div
-              className={`grid gap-8 ${hasAgency ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 justify-items-center"}`}
-            >
+            <div className={`grid gap-8 ${hasAgency ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 justify-items-center"}`}>
               {hasAgency && (
                 <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl shadow-lg w-full hover:scale-[1.02] transition transform">
                   <h3 className="text-xl font-semibold text-green-700 text-center mb-4">
@@ -241,7 +241,7 @@ const AgentVerification = () => {
             <div className="flex justify-center">
               <button
                 type="submit"
-                disabled={loading} // no more user?._id dependency
+                disabled={loading || !user?._id}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
               >
                 {loading ? "Submitting..." : "Submit Verification"}
