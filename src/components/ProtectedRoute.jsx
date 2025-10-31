@@ -18,7 +18,9 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
       if (role === "agent") {
         try {
-          const res = await AGENTAPI.get("/agents/verification/my");
+        const res = await AGENTAPI.get("/agents/verification/my", {
+          params: { userId: user._id },
+        });
           setVerificationStatus(res.data?.profile?.status?.toLowerCase() || "pending");
         } catch (err) {
           console.error("Failed to fetch agent verification:", err);
