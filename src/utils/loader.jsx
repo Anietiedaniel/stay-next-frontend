@@ -12,17 +12,22 @@ const GlowingRealEstateLoader = ({
   orbitCount,
   orbitIconClass,
 }) => {
+  // ✅ Safe fallback for ringColors
+  const safeRingColors =
+    Array.isArray(ringColors) && ringColors.length >= 3
+      ? ringColors
+      : ["#22c55e", "#16a34a", "#059669"];
+
   // Generate orbit icons
-  const orbits = Array.from({ length: orbitCount }, (_, i) => {
-    const angle = (360 / orbitCount) * i;
+  const orbits = Array.from({ length: orbitCount || 6 }, (_, i) => {
+    const angle = (360 / (orbitCount || 6)) * i;
     return (
       <i
         key={i}
-        className={`${orbitIconClass} absolute animate-orbit text-2xl`}
+        className={`${orbitIconClass || "fa fa-home"} absolute animate-orbit text-2xl`}
         style={{
-          color: orbitColor,
-          textShadow:
-            "0 0 10px #facc15, 0 0 20px #fbbf24, 0 0 30px #f59e0b",
+          color: orbitColor || "#facc15",
+          textShadow: "0 0 10px #facc15, 0 0 20px #fbbf24, 0 0 30px #f59e0b",
           transform: `rotate(${angle}deg) translateX(120px) rotate(-${angle}deg)`,
         }}
       />
@@ -31,7 +36,7 @@ const GlowingRealEstateLoader = ({
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center bg-gradient-to-br ${bgGradient} z-50`}
+      className={`fixed inset-0 flex items-center justify-center bg-gradient-to-br ${bgGradient || "from-green-900 to-green-700"} z-50`}
     >
       <div className="relative flex flex-col items-center justify-center">
         {/* Glowing Rings */}
@@ -40,8 +45,8 @@ const GlowingRealEstateLoader = ({
           style={{
             width: "18rem",
             height: "18rem",
-            border: `4px solid ${ringColors[0]}`,
-            boxShadow: `0 0 20px ${ringColors[0]}, 0 0 40px ${ringColors[0]}`,
+            border: `4px solid ${safeRingColors[0]}`,
+            boxShadow: `0 0 20px ${safeRingColors[0]}, 0 0 40px ${safeRingColors[0]}`,
           }}
         ></div>
         <div
@@ -49,8 +54,8 @@ const GlowingRealEstateLoader = ({
           style={{
             width: "12rem",
             height: "12rem",
-            border: `4px solid ${ringColors[1]}`,
-            boxShadow: `0 0 20px ${ringColors[1]}, 0 0 35px ${ringColors[1]}`,
+            border: `4px solid ${safeRingColors[1]}`,
+            boxShadow: `0 0 20px ${safeRingColors[1]}, 0 0 35px ${safeRingColors[1]}`,
           }}
         ></div>
         <div
@@ -58,8 +63,8 @@ const GlowingRealEstateLoader = ({
           style={{
             width: "7rem",
             height: "7rem",
-            border: `4px solid ${ringColors[2]}`,
-            boxShadow: `0 0 15px ${ringColors[2]}, 0 0 25px ${ringColors[2]}`,
+            border: `4px solid ${safeRingColors[2]}`,
+            boxShadow: `0 0 15px ${safeRingColors[2]}, 0 0 25px ${safeRingColors[2]}`,
           }}
         ></div>
 
@@ -70,8 +75,8 @@ const GlowingRealEstateLoader = ({
         <div
           className="relative flex items-center justify-center rounded-full"
           style={{
-            width: logoSize,
-            height: logoSize,
+            width: logoSize || 80,
+            height: logoSize || 80,
             boxShadow: "0 0 20px #22c55e, 0 0 40px #16a34a, 0 0 60px #059669",
           }}
         >
@@ -85,13 +90,12 @@ const GlowingRealEstateLoader = ({
 
         {/* Glowing Text */}
         <p
-          className={`mt-6 text-lg font-bold ${textColor} text-center`}
+          className={`mt-6 text-lg font-bold ${textColor || "text-green-200"} text-center`}
           style={{
-            textShadow:
-              "0 0 5px #22c55e, 0 0 10px #16a34a, 0 0 15px #059669",
+            textShadow: "0 0 5px #22c55e, 0 0 10px #16a34a, 0 0 15px #059669",
           }}
         >
-          {message}
+          {message || "Loading..."}
         </p>
       </div>
 
