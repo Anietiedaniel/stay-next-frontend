@@ -6,14 +6,14 @@ import logo from "../../assets/images/logo.png";
 import { NIGERIA_STATES } from "../../utils/states";
 
 const AgentVerification = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const modalTimeoutRef = useRef(null);
 
+  // Local state
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-
   const [hasAgency, setHasAgency] = useState(false);
 
   // Agency fields
@@ -30,26 +30,26 @@ const AgentVerification = () => {
   const [state, setState] = useState("");
   const [otherInfo, setOtherInfo] = useState("");
 
+  // Verification data
   const [verificationData, setVerificationData] = useState(null);
 
-  // Cleanup modal timers
+  // Cleanup modal timer
   useEffect(() => {
     return () => {
       if (modalTimeoutRef.current) clearTimeout(modalTimeoutRef.current);
     };
   }, []);
 
-  // Fetch user verification info
+  // Fetch verification data
   useEffect(() => {
-    const fetchVerification = async () => {
-      if (!user?._id) return;
-      setLoading(true);
+    if (!user?._id) return;
 
+    const fetchVerification = async () => {
       try {
+        setLoading(true);
         const res = await AGENTAPI.get("/agents/verification/my", {
           params: { userId: user._id },
         });
-
         const v = res.data?.profile || null;
         setVerificationData(v);
 
@@ -71,7 +71,7 @@ const AgentVerification = () => {
           }, 1000);
         }
       } catch (err) {
-        console.error("❌ Error fetching verification:", err);
+        console.error("Error fetching verification:", err);
       } finally {
         setLoading(false);
       }
@@ -93,29 +93,21 @@ const AgentVerification = () => {
     setPreviewId(URL.createObjectURL(file));
   };
 
-  // Submit form
+  // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!user?._id) {
-      alert("User not loaded yet. Please wait...");
-      return;
-    }
-
+    if (!user?._id) return alert("User not ready yet");
     if (!nationalId || !state || !phone) {
-      alert("Please fill all required fields");
-      return;
+      return alert("Please fill all required fields");
     }
-
     if (hasAgency && (!agencyName || !agencyEmail || !agencyPhone || !agencyLogo)) {
-      alert("Please fill all agency details");
-      return;
+      return alert("Please fill all agency details");
     }
 
     try {
       setLoading(true);
-      setShowModal(true);
       setModalMessage("Submitting...");
+      setShowModal(true);
 
       const formData = new FormData();
       formData.append("nationalId", nationalId);
@@ -141,7 +133,7 @@ const AgentVerification = () => {
       setModalMessage("✅ Submitted successfully. Verification pending...");
       modalTimeoutRef.current = setTimeout(() => setShowModal(false), 3000);
     } catch (err) {
-      console.error("❌ Submission failed:", err);
+      console.error("Submission failed:", err);
       setModalMessage("❌ Submission failed. Try again.");
       modalTimeoutRef.current = setTimeout(() => setShowModal(false), 2500);
     } finally {
@@ -149,7 +141,16 @@ const AgentVerification = () => {
     }
   };
 
-  // If verification exists — show status page
+  // Loading before user fetched
+  if (authLoading || !user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Loading user...
+      </div>
+    );
+  }
+
+  // Verification status page
   if (verificationData) {
     const status = verificationData.status.toLowerCase();
     if (["pending", "approved", "rejected"].includes(status)) {
@@ -204,7 +205,9 @@ const AgentVerification = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            <div className={`grid gap-8 ${hasAgency ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 justify-items-center"}`}>
+            <div
+              className={`grid gap-8 ${hasAgency ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 justify-items-center"}`}
+            >
               {hasAgency && (
                 <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl shadow-lg w-full hover:scale-[1.02] transition transform">
                   <h3 className="text-xl font-semibold text-green-700 text-center mb-4">
@@ -213,7 +216,13 @@ const AgentVerification = () => {
                   <InputField label="Agency Name *" value={agencyName} setValue={setAgencyName} />
                   <InputField label="Agency Email *" value={agencyEmail} setValue={setAgencyEmail} type="email" />
                   <InputField label="Agency Phone *" value={agencyPhone} setValue={setAgencyPhone} />
-                  <FileUpload label="Upload Agency Logo" file={agencyLogo} preview={previewLogo} handleChange={handleLogoChange} bgColor="green" />
+                  <FileUpload
+                    label="Upload Agency Logo"
+                    file={agencyLogo}
+                    preview={previewLogo}
+                    handleChange={handleLogoChange}
+                    bgColor="green"
+                  />
                 </div>
               )}
 
@@ -222,14 +231,20 @@ const AgentVerification = () => {
                 <InputField label="Phone *" value={phone} setValue={setPhone} />
                 <SelectField label="State *" value={state} setValue={setState} options={NIGERIA_STATES} />
                 <TextAreaField label="Other Info" value={otherInfo} setValue={setOtherInfo} />
-                <FileUpload label="Upload National ID" file={nationalId} preview={previewId} handleChange={handleIdChange} bgColor="gray" />
+                <FileUpload
+                  label="Upload National ID"
+                  file={nationalId}
+                  preview={previewId}
+                  handleChange={handleIdChange}
+                  bgColor="gray"
+                />
               </div>
             </div>
 
             <div className="flex justify-center">
               <button
                 type="submit"
-                disabled={loading || !user?._id}
+                disabled={loading} // no more user?._id dependency
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
               >
                 {loading ? "Submitting..." : "Submit Verification"}
@@ -296,9 +311,7 @@ const FileUpload = ({ label, file, preview, handleChange, bgColor }) => (
     <label htmlFor={label} className={`cursor-pointer bg-${bgColor}-600 hover:bg-${bgColor}-700 text-white px-4 py-2 rounded-lg shadow transition`}>
       {label}
     </label>
-    {preview && (
-      <img src={preview} alt={`${label} Preview`} className="mt-3 h-28 w-28 object-cover rounded-xl shadow-lg transition-all" />
-    )}
+    {preview && <img src={preview} alt={`${label} Preview`} className="mt-3 h-28 w-28 object-cover rounded-xl shadow-lg transition-all" />}
   </div>
 );
 
