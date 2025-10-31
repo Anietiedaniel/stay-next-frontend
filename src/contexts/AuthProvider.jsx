@@ -4,16 +4,15 @@ import API from "../utils/axios";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Initialize from localStorage for immediate availability
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
   const [role, setRole] = useState(user?.role || "");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // <-- start false to render immediately
 
   const isAuthenticated = !!user;
 
-  // Fetch current user from API
+  // Fetch current user in background
   const fetchUser = async () => {
     try {
       const res = await API.get("/auth/getMe");
@@ -28,14 +27,11 @@ export const AuthProvider = ({ children }) => {
       setRole("");
       localStorage.removeItem("user");
       return null;
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!user) fetchUser(); // only fetch if not already in localStorage
   }, []);
 
   // Normal login
@@ -44,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     const u = res.data.user;
     setUser(u);
     setRole(u.role);
-    localStorage.setItem("user", JSON.stringify(u)); // store in localStorage
+    localStorage.setItem("user", JSON.stringify(u));
     return u;
   };
 
@@ -66,7 +62,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
-  // Update user info
+  // Update user
   const updateUser = (updated, callback = () => {}) => {
     if (typeof updated === "function") {
       setUser((prev) => {
@@ -121,7 +117,7 @@ export const AuthProvider = ({ children }) => {
         resetPassword,
       }}
     >
-      {!loading && children}
+      {children} {/* no more waiting on loading */}
     </AuthContext.Provider>
   );
 };
