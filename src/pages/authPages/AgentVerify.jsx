@@ -6,7 +6,7 @@ import logo from "../../assets/images/logo.png";
 import { NIGERIA_STATES } from "../../utils/states";
 
 const AgentVerification = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const modalTimeoutRef = useRef(null);
 
@@ -40,16 +40,14 @@ const AgentVerification = () => {
     };
   }, []);
 
-  // Fetch verification data
+  // Fetch verification data when user is available
   useEffect(() => {
-    if (!user?._id) return;
+    if (!user) return;
 
     const fetchVerification = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const res = await AGENTAPI.get("/agents/verification/my", {
-          params: { userId: user._id },
-        });
+        const res = await AGENTAPI.get("/agents/verification/my", { params: { userId: user._id } });
         const v = res.data?.profile || null;
         setVerificationData(v);
 
@@ -78,7 +76,7 @@ const AgentVerification = () => {
     };
 
     fetchVerification();
-  }, [user?._id, navigate]);
+  }, [user, navigate]);
 
   // File handlers
   const handleLogoChange = (e) => {
@@ -96,7 +94,7 @@ const AgentVerification = () => {
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user?._id) return alert("User not ready yet");
+
     if (!nationalId || !state || !phone) {
       return alert("Please fill all required fields");
     }
@@ -141,15 +139,6 @@ const AgentVerification = () => {
     }
   };
 
-  // Loading before user fetched
-  if (authLoading || !user) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        Loading user...
-      </div>
-    );
-  }
-
   // Verification status page
   if (verificationData) {
     const status = verificationData.status.toLowerCase();
@@ -178,6 +167,14 @@ const AgentVerification = () => {
         </div>
       );
     }
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Loading user...
+      </div>
+    );
   }
 
   return (
