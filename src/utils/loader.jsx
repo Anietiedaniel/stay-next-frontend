@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 
-export default function Loader({ msg = "Loading..." }) {
+export default function GlowingRealEstateLoader({ msg = "Loading..." }) {
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-black z-50 text-center">
       {/* Blurred Background */}
@@ -10,14 +10,10 @@ export default function Loader({ msg = "Loading..." }) {
 
       {/* Loader Container */}
       <div className="relative w-32 h-32 mb-6">
-        {/* Centered Image */}
+        {/* Centered Logo */}
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="w-20 h-20 bg-gray-800 rounded-full overflow-hidden border-2 border-gray-700">
-            <img
-              src="https://via.placeholder.com/80?text=LOGO"
-              alt="Logo"
-              className="w-full h-full object-cover"
-            />
+          
           </div>
         </div>
 
@@ -50,8 +46,10 @@ export default function Loader({ msg = "Loading..." }) {
         <div className="absolute -inset-4 rounded-full bg-green-500 opacity-20 blur-xl animate-pulse" />
       </div>
 
-      {/* Message Text */}
-      <p className="text-green-400 text-lg font-semibold animate-pulse">{msg}</p>
+      {/* Loading Message */}
+      <p className="text-green-400 text-lg font-semibold animate-pulse">
+        {msg}
+      </p>
 
       <style jsx>{`
         @keyframes spin {
