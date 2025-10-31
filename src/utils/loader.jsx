@@ -1,20 +1,20 @@
 'use client';
 import React from 'react';
-import logo from "../assets/images/logo.png"
+
 
 export default function GlowingRealEstateLoader({ msg = "Loading..." }) {
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-black z-50 text-center">
       {/* Blurred Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900" />
-      <div className="absolute inset-0 bg-green-500 opacity-10 blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-400 via-black to-gray-200" />
+      <div className="absolute inset-0 bg-green-200 opacity-10 blur-3xl" />
 
       {/* Loader Container */}
       <div className="relative w-32 h-32 mb-6">
         {/* Centered Logo */}
         <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="w-20 h-20 bg-gray-800 rounded-full overflow-hidden border-2 border-gray-700">
-            <img src={logo} alt="logo" />
+          <div className="w-20 h-20 bg-gray-300 rounded-full overflow-hidden border-2 border-gray-400">
+           
           </div>
         </div>
 
