@@ -1,93 +1,149 @@
-import { useState, useEffect } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import AGENTAPI from "../utils/agentaxios";
-import LoadingModal from "../utils/loader"; // import the loader
+import React from "react";
+import PropTypes from "prop-types";
+import logo from "../assets/images/logo.png"; // Replace with your logo path
 
-const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-  const { user, isAuthenticated, role, loading } = useAuth();
-  const location = useLocation();
-  const [verificationStatus, setVerificationStatus] = useState("pending");
-  const [verifLoading, setVerifLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchVerification = async () => {
-      if (!role) {
-        setVerifLoading(false);
-        return;
-      }
-
-      if (role === "agent") {
-        try {
-          const res = await AGENTAPI.get("/agents/verification/my");
-          const status = res.data?.profile?.status || "pending";
-          setVerificationStatus(status.toLowerCase());
-        } catch (err) {
-          console.error("Failed to fetch agent verification:", err);
-          setVerificationStatus("pending");
-        } finally {
-          setVerifLoading(false);
-        }
-      } else {
-        setVerifLoading(false);
-      }
-    };
-
-    fetchVerification();
-  }, [role]);
-
-  // ===== 🌀 Show Custom Loader While Loading =====
-  if (loading || verifLoading) {
+const GlowingRealEstateLoader = ({
+  message,
+  logoSize,
+  ringColors,
+  orbitColor,
+  bgGradient,
+  textColor,
+  orbitCount,
+  orbitIconClass,
+}) => {
+  // Generate orbit icons
+  const orbits = Array.from({ length: orbitCount }, (_, i) => {
+    const angle = (360 / orbitCount) * i;
     return (
-      <LoadingModal
-        loading={true}
-        message="Authenticating... Please wait"
+      <i
+        key={i}
+        className={`${orbitIconClass} absolute animate-orbit text-2xl`}
+        style={{
+          color: orbitColor,
+          textShadow:
+            "0 0 10px #facc15, 0 0 20px #fbbf24, 0 0 30px #f59e0b",
+          transform: `rotate(${angle}deg) translateX(120px) rotate(-${angle}deg)`,
+        }}
       />
     );
-  }
+  });
 
-  // ===== 🚫 Not Authenticated =====
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+  return (
+    <div
+      className={`fixed inset-0 flex items-center justify-center bg-gradient-to-br ${bgGradient} z-50`}
+    >
+      <div className="relative flex flex-col items-center justify-center">
+        {/* Glowing Rings */}
+        <div
+          className="absolute rounded-full animate-spin-slow"
+          style={{
+            width: "18rem",
+            height: "18rem",
+            border: `4px solid ${ringColors[0]}`,
+            boxShadow: `0 0 20px ${ringColors[0]}, 0 0 40px ${ringColors[0]}`,
+          }}
+        ></div>
+        <div
+          className="absolute rounded-full animate-spin-slow-reverse"
+          style={{
+            width: "12rem",
+            height: "12rem",
+            border: `4px solid ${ringColors[1]}`,
+            boxShadow: `0 0 20px ${ringColors[1]}, 0 0 35px ${ringColors[1]}`,
+          }}
+        ></div>
+        <div
+          className="absolute rounded-full animate-pulse"
+          style={{
+            width: "7rem",
+            height: "7rem",
+            border: `4px solid ${ringColors[2]}`,
+            boxShadow: `0 0 15px ${ringColors[2]}, 0 0 25px ${ringColors[2]}`,
+          }}
+        ></div>
 
-  // ===== 🧭 New User Setup =====
-  if (
-    user?.isNewUser &&
-    role !== "superadmin" &&
-    role !== "admin" &&
-    location.pathname !== "/set-role"
-  ) {
-    return <Navigate to="/set-role" replace />;
-  }
+        {/* Orbiting Icons */}
+        <div className="absolute w-0 h-0">{orbits}</div>
 
-  // ===== 🔐 Role-Based Access Control =====
-  if (allowedRoles.length && !allowedRoles.includes(role)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
+        {/* Glowing Logo */}
+        <div
+          className="relative flex items-center justify-center rounded-full"
+          style={{
+            width: logoSize,
+            height: logoSize,
+            boxShadow: "0 0 20px #22c55e, 0 0 40px #16a34a, 0 0 60px #059669",
+          }}
+        >
+          <img
+            src={logo}
+            alt="Logo"
+            className="animate-bounce-slow w-full h-full p-2"
+            style={{ filter: "drop-shadow(0 0 10px #22c55e)" }}
+          />
+        </div>
 
-  // ===== 🧾 Agent Verification Flow =====
-  if (role === "agent") {
-    // Pending or Rejected → redirect to policy
-    if (
-      (verificationStatus === "pending" || verificationStatus === "rejected") &&
-      location.pathname !== "/policy" &&
-      location.pathname !== "/agent-verification"
-    ) {
-      return <Navigate to="/policy" replace />;
-    }
+        {/* Glowing Text */}
+        <p
+          className={`mt-6 text-lg font-bold ${textColor} text-center`}
+          style={{
+            textShadow:
+              "0 0 5px #22c55e, 0 0 10px #16a34a, 0 0 15px #059669",
+          }}
+        >
+          {message}
+        </p>
+      </div>
 
-    // ✅ Verified agent → go to overview if base dashboard route
-    if (
-      verificationStatus === "verified" &&
-      location.pathname === "/agent-dashboard"
-    ) {
-      return <Navigate to="/agent-dashboard/overview" replace />;
-    }
-  }
-
-  // ===== ✅ Render Content =====
-  return children;
+      {/* Custom Animations */}
+      <style jsx>{`
+        @keyframes spin-slow {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes spin-slow-reverse {
+          0% { transform: rotate(360deg); }
+          100% { transform: rotate(0deg); }
+        }
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-12px); }
+        }
+        @keyframes orbit {
+          0% { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+          100% { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+        }
+        .animate-spin-slow { animation: spin-slow 6s linear infinite; }
+        .animate-spin-slow-reverse { animation: spin-slow-reverse 10s linear infinite; }
+        .animate-bounce-slow { animation: bounce-slow 2s ease-in-out infinite; }
+        .animate-orbit { animation: orbit 8s linear infinite; }
+      `}</style>
+    </div>
+  );
 };
 
-export default ProtectedRoute;
+// PropTypes
+GlowingRealEstateLoader.propTypes = {
+  message: PropTypes.string,
+  logoSize: PropTypes.number,
+  ringColors: PropTypes.arrayOf(PropTypes.string),
+  orbitColor: PropTypes.string,
+  bgGradient: PropTypes.string,
+  textColor: PropTypes.string,
+  orbitCount: PropTypes.number,
+  orbitIconClass: PropTypes.string,
+};
+
+// Default Props
+GlowingRealEstateLoader.defaultProps = {
+  message: "Loading...",
+  logoSize: 80,
+  ringColors: ["#22c55e", "#16a34a", "#059669"],
+  orbitColor: "#facc15",
+  bgGradient: "from-green-900 to-green-700",
+  textColor: "text-green-200",
+  orbitCount: 6,
+  orbitIconClass: "fa fa-home",
+};
+
+export default GlowingRealEstateLoader;

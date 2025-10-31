@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import AGENTAPI from "../utils/agentaxios";
+import GlowingRealEstateLoader from "../utils/loader"
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { user, isAuthenticated, role, loading } = useAuth();
@@ -18,9 +19,9 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
       if (role === "agent") {
         try {
-        const res = await AGENTAPI.get("/agents/verification/my", {
-          params: { userId: user._id },
-        });
+          const res = await AGENTAPI.get("/agents/verification/my", {
+            params: { userId: user._id },
+          });
           setVerificationStatus(res.data?.profile?.status?.toLowerCase() || "pending");
         } catch (err) {
           console.error("Failed to fetch agent verification:", err);
@@ -37,7 +38,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   }, [role]);
 
   if (loading || verifLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return <GlowingRealEstateLoader message="Verifying access..." logoSize={80} />;
   }
 
   if (!isAuthenticated) {
