@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import logo from "../assets/images/logo.png"
 
 export default function GlowingRealEstateLoader({ msg = "Loading..." }) {
   return (
@@ -13,7 +14,7 @@ export default function GlowingRealEstateLoader({ msg = "Loading..." }) {
         {/* Centered Logo */}
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="w-20 h-20 bg-gray-800 rounded-full overflow-hidden border-2 border-gray-700">
-          
+            <img src={logo} alt="logo" />
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-function Navbar({ navItems = [ "Buy", "Rent", "Book", "Service"], selectedType = "All", onSelect }) {
+function Navbar({ navItems = [ "Buying", "Renting", "Booking", "Servicing"], selectedType = "All", onSelect }) {
   const [active, setActive] = useState(selectedType);
   const [isMobile, setIsMobile] = useState(false);
 

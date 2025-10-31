@@ -77,7 +77,7 @@ const Login = () => {
     <>
       {/* ✅ Loader */}
       {loading ? (
-        <GlowingRealEstateLoader msg="Registering your account..." />
+        <GlowingRealEstateLoader msg="Logging you in…" />
       ) : (
       <div
         className="bg-gray-200 text-white min-h-screen flex items-center justify-center bg-cover bg-center"
