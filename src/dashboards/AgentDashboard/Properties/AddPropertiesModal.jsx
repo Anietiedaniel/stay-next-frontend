@@ -3,7 +3,7 @@ import {
   propertyCategories,
   propertyFieldRequirements,
 } from "../../../utils/propertyCategories";
-import LoadingModal from "../../../utils/loader";
+import GlowingRealEstateLoader from "../../../utils/loader";
 
 export default function AddPropertyModal({ show, onClose, onSubmit }) {
   const [imagePreviews, setImagePreviews] = useState([]);
@@ -407,13 +407,12 @@ export default function AddPropertyModal({ show, onClose, onSubmit }) {
           </div>
         </form>
 
-        <LoadingModal
+        <GlowingRealEstateLoader
           loading={loading}
           success={success}
           error={error}
           message="Adding Property..."
           successMessage="Property Added Successfully!"
-          errorMessage="Failed to add property. Try again."
         />
       </div>
     </div>
