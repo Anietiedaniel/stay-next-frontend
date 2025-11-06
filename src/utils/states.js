@@ -6,3 +6,6 @@ export const NIGERIA_STATES = [
   "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto",
   "Taraba", "Yobe", "Zamfara"
 ];
+
+
+

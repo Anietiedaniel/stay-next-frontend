@@ -1,12 +1,20 @@
-// src/utils/axios.js
+// src/utils/agentAxios.js
 import axios from "axios";
 
+// ✅ Detect environment
+const isLocalhost = window.location.hostname === "localhost";
+
+// ✅ Switch base URL automatically
+const AGENT_BASE_URL = isLocalhost
+  ? "http://localhost:3005/api" // Local agent service
+  : "https://stay-next-agent-service.onrender.com/api"; // Production agent service
+
 const AGENTAPI = axios.create({
-  baseURL: "https://stay-next-agent-service.onrender.com/api",
+  baseURL: AGENT_BASE_URL,
   withCredentials: true,
 });
 
-// Only set JSON header for JSON requests, not globally
+// ✅ Only set Content-Type for non-FormData
 AGENTAPI.interceptors.request.use((config) => {
   if (!(config.data instanceof FormData)) {
     config.headers["Content-Type"] = "application/json";

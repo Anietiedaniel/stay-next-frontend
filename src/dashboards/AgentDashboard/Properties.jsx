@@ -13,20 +13,27 @@ export default function Properties() {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [viewModeModal, setViewModeModal] = useState(null);
 
+  const stored = JSON.parse(localStorage.getItem("user"));
+  const userId = stored?._id;
+
+
   useEffect(() => {
     fetchProperties();
   }, []);
 
-  const fetchProperties = async () => {
-    try {
-      const res = await AGENTAPI.get("/agents/properties/my-properties");
-      console.log(res.data)
-      setProperties(res.data?.properties || []);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to fetch properties");
-    }
-  };
+const fetchProperties = async () => {
+  try {
+    const res = await AGENTAPI.get("/agents/properties/my-properties", {
+      headers: { "x-user-id": userId }
+    });
+
+    setProperties(res.data?.properties || []);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to fetch properties");
+  }
+};
+
 
   const filteredProperties = properties.filter(
     (p) =>
@@ -39,47 +46,67 @@ export default function Properties() {
   const formatPrice = (price) =>
     price?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this property?")) return;
-    try {
-      await AGENTAPI.delete(`/agents/properties/delete/${id}`);
-      setProperties((prev) => prev.filter((p) => p._id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete property");
-    }
-  };
+
+const handleDelete = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this property?")) return;
+
+  try {
+    await AGENTAPI.delete(`/agents/properties/delete/${id}`, {
+      headers: { "x-user-id": userId },
+    });
+
+    setProperties((prev) => prev.filter((p) => p._id !== id));
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete property");
+  }
+};
 
   const handleAddSubmit = async (formData) => {
-    try {
-      const res = await AGENTAPI.post("/agents/properties/add", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setProperties((prev) => [...prev, res.data.property]);
-      setShowAddModal(false);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to add property");
-    }
-  };
+  try {
+    const res = await AGENTAPI.post("/agents/properties/add", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "x-user-id": userId,
+      },
+    });
+
+    setProperties((prev) => [...prev, res.data.property]);
+    setShowAddModal(false);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to add property");
+  }
+};
+
 
   const handleEditSubmit = async (formData) => {
-    try {
-      const res = await AGENTAPI.put(`/agents/properties/${selectedProperty._id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setProperties((prev) =>
-        prev.map((p) =>
-          p._id === selectedProperty._id ? res.data.property : p
-        )
-      );
-      setSelectedProperty(null);
-      setShowEditModal(false);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update property");
-    }
-  };
+  try {
+    const res = await AGENTAPI.put(
+      `/agents/properties/${selectedProperty._id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "x-user-id": userId,
+        },
+      }
+    );
+
+    setProperties((prev) =>
+      prev.map((p) =>
+        p._id === selectedProperty._id ? res.data.property : p
+      )
+    );
+
+    setSelectedProperty(null);
+    setShowEditModal(false);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to update property");
+  }
+};
+
 
   return (
     <div className="p-4 w-full">

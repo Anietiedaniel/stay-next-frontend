@@ -1,43 +1,62 @@
-'use client';
-import React from 'react';
-import logo from '../assets/images/logo.png'
+import React from "react";
+import PropTypes from "prop-types";
+import logo from "../assets/images/logo.png"; // your logo path
 
-export default function GlowingRealEstateLoader({ msg = "Loading..." }) {
+const LoadingModal = ({
+  loading,
+  success,
+  error,
+  message = "Processing...",
+  successMessage = "Operation Successful!",
+  errorMessage = "Something went wrong.",
+}) => {
+  if (!loading && !success && !error) return null;
+
+  let displayMessage = message;
+  let iconClass = "fa-solid fa-spinner fa-spin text-blue-500";
+  let colorClass = "text-blue-500";
+
+  if (success) {
+    displayMessage = successMessage;
+    iconClass = "fa-solid fa-circle-check text-green-500";
+    colorClass = "text-green-500";
+  } else if (error) {
+    displayMessage = errorMessage;
+    iconClass = "fa-solid fa-circle-xmark text-red-500";
+    colorClass = "text-red-500";
+  }
+
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center backdrop-blur-md bg-black/30 z-50 text-center">
-      {/* Loader Circle */}
-      <div className="relative w-32 h-32 flex items-center justify-center mb-8">
-        {/* Animated gradient ring */}
-        <div className="absolute w-full h-full rounded-full border-t-4 border-green-400 border-opacity-70 animate-spin"></div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-white/90 dark:bg-gray-900/90 p-8 rounded-2xl shadow-2xl text-center w-[320px] border border-white/30">
+        <div className="flex flex-col items-center space-y-5">
+          {/* Center Image (Logo or Loader Visual) */}
+          <img
+            src={logo}
+            alt="App Logo"
+            className="w-20 h-20 object-contain animate-pulse"
+          />
 
-        {/* Inner glow pulse */}
-        <div className="absolute w-28 h-28 rounded-full bg-green-500/20 blur-md animate-pulse"></div>
+          {/* Dynamic Icon */}
+          <i className={`${iconClass} text-5xl ${colorClass}`}></i>
 
-        {/* Center circle zoom in/out */}
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 shadow-lg shadow-green-500/40 animate-zoomInOut">
-          <img src={logo} alt="company-logo-loader" />
+          {/* Message Text */}
+          <p className="text-gray-800 dark:text-gray-200 font-medium text-lg">
+            {displayMessage}
+          </p>
         </div>
       </div>
-
-      {/* Loading Text */}
-      <p className="text-green-400 text-lg font-semibold tracking-wide animate-pulse">
-        {msg}
-      </p>
-
-      {/* Custom Keyframes */}
-      <style jsx>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes zoomInOut {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.3); }
-        }
-        .animate-zoomInOut {
-          animation: zoomInOut 1.5s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
-}
+};
+
+LoadingModal.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  success: PropTypes.bool,
+  error: PropTypes.bool,
+  message: PropTypes.string,
+  successMessage: PropTypes.string,
+  errorMessage: PropTypes.string,
+};
+
+export default LoadingModal;

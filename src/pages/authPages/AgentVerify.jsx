@@ -185,10 +185,10 @@ const AgentVerification = () => {
 
               <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl shadow-lg w-full max-w-md hover:scale-[1.02] transition transform">
                 <h3 className="text-xl font-semibold text-gray-800 text-center mb-4">Personal Information</h3>
+                <FileUpload label="Upload Your profile picture *" file={nationalId} preview={previewId} handleChange={handleIdChange} bgColor="gray" />
                 <InputField label="Phone *" value={phone} setValue={setPhone} />
                 <SelectField label="State *" value={state} setValue={setState} options={NIGERIA_STATES} />
-                <TextAreaField label="Other Info" value={otherInfo} setValue={setOtherInfo} />
-                <FileUpload label="Upload National ID" file={nationalId} preview={previewId} handleChange={handleIdChange} bgColor="gray" />
+                <TextAreaField label="Other Info *" value={otherInfo} setValue={setOtherInfo} />
               </div>
             </div>
 

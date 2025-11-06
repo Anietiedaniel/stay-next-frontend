@@ -1,12 +1,20 @@
-// src/utils/axios.js
+// src/utils/adminAxios.js
 import axios from "axios";
 
+// ✅ Detect if running on localhost
+const isLocalhost = window.location.hostname === "localhost";
+
+// ✅ Automatically choose base URL
+const ADMIN_BASE_URL = isLocalhost
+  ? "http://localhost:4500/api/admin"            // ✅ Local admin backend
+  : "https://stay-next-admin-service.onrender.com/api/admin"; // ✅ Production admin backend
+
 const ADMINAPI = axios.create({
-  baseURL: "https://stay-next-admin-service.onrender.com/api/admin", // Adjusted baseURL to match backend route
+  baseURL: ADMIN_BASE_URL,
   withCredentials: true,
 });
 
-// Only set JSON header for JSON requests, not globally
+// ✅ Only set Content-Type for non-FormData requests
 ADMINAPI.interceptors.request.use((config) => {
   if (!(config.data instanceof FormData)) {
     config.headers["Content-Type"] = "application/json";
