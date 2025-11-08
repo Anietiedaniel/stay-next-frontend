@@ -8,19 +8,23 @@ export default function EditPropertyModal({ show, onClose, initialData, onUpdate
   const [title, setTitle] = useState("");
   const [transactionType, setTransactionType] = useState("");
   const [duration, setDuration] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [imagePreviews, setImagePreviews] = useState([]);
   const [videoPreviews, setVideoPreviews] = useState([]);
   const [newImages, setNewImages] = useState([]);
   const [newVideos, setNewVideos] = useState([]);
 
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
 
-  // ✅ Load initial data
+  const stored = JSON.parse(localStorage.getItem("user"));
+  const userId = stored?._id;
+
+  /* ✅ Load existing property data */
   useEffect(() => {
     if (initialData) {
       setPropertyType(initialData.type || "");
@@ -28,28 +32,24 @@ export default function EditPropertyModal({ show, onClose, initialData, onUpdate
       setTransactionType(initialData.transactionType || "");
       setDuration(initialData.duration || "");
 
-      const existingImages =
-        initialData.images?.map((img) => ({ url: img, isNew: false })) || [];
-      const existingVideos =
-        initialData.youtubeVideos?.map((vid) => ({ url: vid, isNew: false })) || [];
+      setImagePreviews(
+        initialData.images?.map((img) => ({ url: img, isNew: false })) || []
+      );
 
-      setImagePreviews(existingImages);
-      setVideoPreviews(existingVideos);
-      setNewImages([]);
-      setNewVideos([]);
+      setVideoPreviews(
+        initialData.youtubeVideos?.map((vid) => ({ url: vid, isNew: false })) || []
+      );
     }
   }, [initialData]);
 
   if (!show) return null;
 
-  // ✅ Suggestion logic
+  /* ✅ Suggestions Generator */
   const getSuggestions = (input, type) => {
     if (!type || !propertyCategories[type]) return [];
-    const allTitles = propertyCategories[type];
-    if (!input.trim()) return allTitles;
-    return allTitles.filter((item) =>
-      item.toLowerCase().includes(input.toLowerCase())
-    );
+    const all = propertyCategories[type];
+    if (!input.trim()) return all;
+    return all.filter((x) => x.toLowerCase().includes(input.toLowerCase()));
   };
 
   const handleTitleChange = (e) => {
@@ -59,83 +59,75 @@ export default function EditPropertyModal({ show, onClose, initialData, onUpdate
     setShowSuggestions(true);
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    setTitle(suggestion);
-    setShowSuggestions(false);
-  };
-
-  // ✅ Remove existing media
+  /* ✅ Remove OLD IMAGE (database media) */
   const handleRemoveImage = async (url) => {
     setLoading(true);
     try {
       await AGENTAPI.delete("/agents/properties/delete-image", {
         data: { propertyId: initialData._id, imageUrl: url },
       });
-      setImagePreviews((prev) => prev.filter((img) => img.url !== url));
+      setImagePreviews((prev) => prev.filter((i) => i.url !== url));
       setSuccess(true);
-      setTimeout(() => setSuccess(false), 2000);
     } catch {
       setError(true);
-      setTimeout(() => setError(false), 2000);
     } finally {
+      setTimeout(() => setSuccess(false), 1500);
+      setTimeout(() => setError(false), 1500);
       setLoading(false);
     }
   };
 
+  /* ✅ Remove OLD VIDEO */
   const handleRemoveVideo = async (url) => {
     setLoading(true);
     try {
       await AGENTAPI.delete("/agents/properties/delete-video", {
         data: { propertyId: initialData._id, videoUrl: url },
       });
-      setVideoPreviews((prev) => prev.filter((vid) => vid.url !== url));
+      setVideoPreviews((prev) => prev.filter((v) => v.url !== url));
       setSuccess(true);
-      setTimeout(() => setSuccess(false), 2000);
     } catch {
       setError(true);
-      setTimeout(() => setError(false), 2000);
     } finally {
+      setTimeout(() => setSuccess(false), 1500);
+      setTimeout(() => setError(false), 1500);
       setLoading(false);
     }
   };
 
-  // ✅ Add new files
+  /* ✅ Add NEW IMAGES */
   const handleAddImages = (e) => {
     const files = Array.from(e.target.files);
-    const previews = files.map((file) => ({
-      url: URL.createObjectURL(file),
-      isNew: true,
-    }));
     setNewImages((prev) => [...prev, ...files]);
-    setImagePreviews((prev) => [...prev, ...previews]);
-    e.target.value = null;
+    setImagePreviews((prev) => [
+      ...prev,
+      ...files.map((f) => ({ url: URL.createObjectURL(f), isNew: true })),
+    ]);
   };
 
+  /* ✅ Add NEW VIDEOS */
   const handleAddVideos = (e) => {
     const files = Array.from(e.target.files);
-    const previews = files.map((file) => ({
-      url: URL.createObjectURL(file),
-      isNew: true,
-    }));
     setNewVideos((prev) => [...prev, ...files]);
-    setVideoPreviews((prev) => [...prev, ...previews]);
-    e.target.value = null;
+    setVideoPreviews((prev) => [
+      ...prev,
+      ...files.map((f) => ({ url: URL.createObjectURL(f), isNew: true })),
+    ]);
   };
 
-  const handleRemoveNewFile = (fileList, setFiles, setPreviews, index) => {
-    const newFile = fileList[index];
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-    setPreviews((prev) =>
+  /* ✅ Remove NEW FILES before uploading */
+  const handleRemoveNew = (list, setList, setPreview, index) => {
+    const newFile = list[index];
+    setList((prev) => prev.filter((_, i) => i !== index));
+    setPreview((prev) =>
       prev.filter((p) => p.url !== URL.createObjectURL(newFile))
     );
   };
 
-  // ✅ Submit update
+  /* ✅ SUBMIT UPDATE */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(false);
-    setSuccess(false);
 
     try {
       const form = e.target;
@@ -147,91 +139,80 @@ export default function EditPropertyModal({ show, onClose, initialData, onUpdate
       formData.append("location", form.location.value);
       formData.append("price", form.price.value);
       formData.append("features", form.features.value || "");
-      formData.append("area", form.area?.value || "");
       formData.append("duration", duration);
 
-      if (form.bedrooms?.value && Number(form.bedrooms.value) > 0)
-        formData.append("bedrooms", form.bedrooms.value);
+      if (propertyType === "Land") {
+        formData.append("area", form.area?.value || "");
+      } else {
+        if (form.bedrooms?.value) formData.append("bedrooms", form.bedrooms.value);
+        if (form.toilets?.value) formData.append("toilets", form.toilets.value);
+      }
 
-      if (form.toilets?.value && Number(form.toilets.value) > 0)
-        formData.append("toilets", form.toilets.value);
+      newImages.forEach((img) => formData.append("images", img));
+      newVideos.forEach((vid) => formData.append("videos", vid));
 
-      newImages.forEach((file) => formData.append("images", file));
-      newVideos.forEach((file) => formData.append("videos", file));
+      /* ✅ Call parent update handler WITH formData  */
+      await onUpdate(formData);
 
-      const res = await AGENTAPI.put(`/agents/properties/${initialData._id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      if (res.status === 200) {
-        setSuccess(true);
-        setTimeout(() => {
-          setSuccess(false);
-          onUpdate();
-          onClose();
-        }, 2000);
-      } else throw new Error();
+      setSuccess(true);
+      setTimeout(() => {
+        onClose();
+      }, 1200);
     } catch (err) {
       console.error(err);
       setError(true);
-      setTimeout(() => setError(false), 2000);
     } finally {
       setLoading(false);
+      setTimeout(() => {
+        setError(false);
+        setSuccess(false);
+      }, 2000);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
-      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto relative">
-        <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">
-          Edit Property
-        </h2>
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md w-full max-w-md max-h-[95vh] overflow-y-auto">
+        <h2 className="text-xl font-semibold mb-3">Edit Property</h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          {/* ✅ Property Type */}
+
+          {/* Property Type */}
           <select
             name="type"
             value={propertyType}
             onChange={(e) => {
               setPropertyType(e.target.value);
               setSuggestions(propertyCategories[e.target.value] || []);
-              setShowSuggestions(false);
             }}
             required
-            className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+            className="w-full border p-2 rounded dark:bg-gray-800"
           >
             <option value="">Select Property Type</option>
-            {Object.keys(propertyCategories).map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
+            {Object.keys(propertyCategories).map((t) => (
+              <option key={t} value={t}>{t}</option>
             ))}
           </select>
 
-          {/* ✅ Title with Suggestions */}
+          {/* Title with Suggestions */}
           <div className="relative">
             <input
               name="title"
               value={title}
               onChange={handleTitleChange}
-              onFocus={() => {
-                if (propertyType) {
-                  setSuggestions(getSuggestions(title, propertyType));
-                  setShowSuggestions(true);
-                }
-              }}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              placeholder="Start typing title..."
-              required
-              className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+              placeholder="Property Title"
+              className="w-full border p-2 rounded dark:bg-gray-800"
             />
             {showSuggestions && suggestions.length > 0 && (
-              <ul className="absolute z-20 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 w-full max-h-40 overflow-y-auto rounded mt-1 shadow-md">
+              <ul className="absolute bg-white dark:bg-gray-800 w-full border rounded shadow max-h-40 overflow-y-auto z-20">
                 {suggestions.map((s, i) => (
                   <li
                     key={i}
-                    onClick={() => handleSuggestionClick(s)}
-                    className="px-3 py-2 hover:bg-green-600 hover:text-white cursor-pointer dark:hover:bg-green-700"
+                    onClick={() => {
+                      setTitle(s);
+                      setShowSuggestions(false);
+                    }}
+                    className="px-3 py-2 cursor-pointer hover:bg-green-600 hover:text-white"
                   >
                     {s}
                   </li>
@@ -240,156 +221,119 @@ export default function EditPropertyModal({ show, onClose, initialData, onUpdate
             )}
           </div>
 
-          {/* ✅ Transaction Type */}
+          {/* Transaction Type */}
           <select
             name="transactionType"
             value={transactionType}
             onChange={(e) => setTransactionType(e.target.value)}
-            required
-            className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+            className="w-full border p-2 rounded dark:bg-gray-800"
           >
-            <option value="">Select Transaction Type</option>
+            <option value="">Select Transaction</option>
             <option value="rent">Rent</option>
             <option value="sale">Sale</option>
             <option value="book">Book</option>
           </select>
 
-          {/* ✅ Duration (only for rent/book) */}
           {(transactionType === "rent" || transactionType === "book") && (
             <input
               name="duration"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              placeholder="Duration (e.g. 6 months, 1 year)"
-              required
-              className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+              placeholder="Duration (6 months)"
+              className="w-full border p-2 rounded dark:bg-gray-800"
             />
           )}
 
-          {/* ✅ Location */}
           <input
             name="location"
             defaultValue={initialData.location}
             placeholder="Location"
-            required
-            className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+            className="w-full border p-2 rounded dark:bg-gray-800"
           />
 
-          {/* ✅ Price */}
-          <div className="relative w-full">
-            <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300">
-              ₦
-            </span>
-            <input
-              name="price"
-              type="number"
-              defaultValue={initialData.price}
-              placeholder="Price"
-              required
-              className="w-full pl-7 border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
-            />
-          </div>
+          <input
+            name="price"
+            type="number"
+            defaultValue={initialData.price}
+            placeholder="Price"
+            className="w-full border p-2 rounded dark:bg-gray-800"
+          />
 
-          {/* ✅ Conditional Fields */}
+          {/* CONDITIONAL FIELDS */}
           {propertyType === "Land" && (
             <input
               name="area"
               type="number"
               defaultValue={initialData.area}
-              placeholder="Area (sq.m)"
-              required
-              className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+              placeholder="Area (sqm)"
+              className="w-full border p-2 rounded dark:bg-gray-800"
             />
           )}
 
-          {(propertyType === "Apartment" ||
-            propertyType === "House" ||
-            propertyType === "Duplex") && (
+          {propertyType !== "Land" && (
             <div className="grid grid-cols-2 gap-2">
-              {initialData.bedrooms !== 0 && (
-                <input
-                  name="bedrooms"
-                  type="number"
-                  defaultValue={initialData.bedrooms || ""}
-                  placeholder="Bedrooms"
-                  min="0"
-                  className="border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
-                />
-              )}
-              {initialData.toilets !== 0 && (
-                <input
-                  name="toilets"
-                  type="number"
-                  defaultValue={initialData.toilets || ""}
-                  placeholder="Toilets"
-                  min="0"
-                  className="border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
-                />
-              )}
+              <input
+                name="bedrooms"
+                type="number"
+                defaultValue={initialData.bedrooms}
+                placeholder="Bedrooms"
+                className="border p-2 rounded dark:bg-gray-800"
+              />
+              <input
+                name="toilets"
+                type="number"
+                defaultValue={initialData.toilets}
+                placeholder="Toilets"
+                className="border p-2 rounded dark:bg-gray-800"
+              />
             </div>
           )}
 
-          {/* ✅ Features */}
           <textarea
             name="features"
             defaultValue={initialData.features}
             placeholder="Features (comma separated)"
-            className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+            className="w-full border p-2 rounded dark:bg-gray-800"
           />
 
-          {/* ✅ Uploads */}
-          <label
-            htmlFor="editImageUpload"
-            className="cursor-pointer flex items-center justify-center border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-md p-4 hover:border-green-600 dark:hover:border-green-400 transition"
-          >
-            <span className="text-gray-600 dark:text-gray-300">
-              Click to upload new images
-            </span>
+          {/* Add New Images */}
+          <label className="cursor-pointer block border-2 border-dashed p-3 rounded text-center dark:border-gray-600">
+            Upload Images
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleAddImages}
+            />
           </label>
-          <input
-            id="editImageUpload"
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={handleAddImages}
-          />
 
-          <label
-            htmlFor="editVideoUpload"
-            className="cursor-pointer flex items-center justify-center border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-md p-4 hover:border-green-600 dark:hover:border-green-400 transition"
-          >
-            <span className="text-gray-600 dark:text-gray-300">
-              Click to upload new videos
-            </span>
+          {/* Add New Videos */}
+          <label className="cursor-pointer block border-2 border-dashed p-3 rounded text-center dark:border-gray-600">
+            Upload Videos
+            <input
+              type="file"
+              accept="video/*"
+              multiple
+              className="hidden"
+              onChange={handleAddVideos}
+            />
           </label>
-          <input
-            id="editVideoUpload"
-            type="file"
-            accept="video/*"
-            multiple
-            className="hidden"
-            onChange={handleAddVideos}
-          />
 
-          {/* ✅ Media Previews */}
+          {/* PREVIEW IMAGES */}
           {imagePreviews.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2">
               {imagePreviews.map((p, i) => (
                 <div key={i} className="relative">
-                  <img
-                    src={p.url}
-                    alt=""
-                    className="w-20 h-20 object-cover rounded"
-                  />
+                  <img src={p.url} className="w-20 h-20 object-cover rounded" />
                   <button
                     type="button"
+                    className="absolute top-0 right-0 bg-red-600 text-white px-1 rounded-full"
                     onClick={() =>
                       p.isNew
-                        ? handleRemoveNewFile(newImages, setNewImages, setImagePreviews, i)
+                        ? handleRemoveNew(newImages, setNewImages, setImagePreviews, i)
                         : handleRemoveImage(p.url)
                     }
-                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1"
                   >
                     ×
                   </button>
@@ -398,19 +342,20 @@ export default function EditPropertyModal({ show, onClose, initialData, onUpdate
             </div>
           )}
 
+          {/* PREVIEW VIDEOS */}
           {videoPreviews.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2">
               {videoPreviews.map((v, i) => (
                 <div key={i} className="relative w-28 h-20 bg-black rounded overflow-hidden">
-                  <video src={v.url} className="w-full h-full object-cover" controls />
+                  <video src={v.url} className="w-full h-full" controls />
                   <button
                     type="button"
+                    className="absolute top-0 right-0 bg-red-600 text-white px-1 rounded-full"
                     onClick={() =>
                       v.isNew
-                        ? handleRemoveNewFile(newVideos, setNewVideos, setVideoPreviews, i)
+                        ? handleRemoveNew(newVideos, setNewVideos, setVideoPreviews, i)
                         : handleRemoveVideo(v.url)
                     }
-                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1"
                   >
                     ×
                   </button>
@@ -419,34 +364,24 @@ export default function EditPropertyModal({ show, onClose, initialData, onUpdate
             </div>
           )}
 
-          {/* ✅ Buttons */}
+          {/* BUTTONS */}
           <div className="flex justify-end gap-2 mt-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded bg-gray-300 dark:bg-gray-700 dark:text-gray-100"
-              disabled={loading || success}
-            >
+            <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-400 rounded">
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={loading || success}
-              className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
-            >
-              {loading ? "Updating..." : "Save"}
+            <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">
+              Save
             </button>
           </div>
         </form>
 
-        {/* ✅ Loader Modal */}
         <LoadingModal
           loading={loading}
           success={success}
           error={error}
           message="Updating Property..."
-          successMessage="Property Updated Successfully!"
-          errorMessage="Failed to update property. Try again."
+          successMessage="Property Updated!"
+          errorMessage="Update Failed."
         />
       </div>
     </div>
