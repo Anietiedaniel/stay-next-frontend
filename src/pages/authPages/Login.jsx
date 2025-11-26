@@ -4,7 +4,7 @@ import logo from '../../assets/images/logo.png';
 import useAuth from '../../hooks/useAuth';
 import { GoogleLogin } from '@react-oauth/google';
 import API from '../../utils/axios';
-import LoadingModal from '../../utils/Loader';
+import LoadingModal from '../../utils/loader';
 
 const Login = () => {
   const navigate = useNavigate();
