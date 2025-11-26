@@ -19,7 +19,7 @@ const PageHeader = () => {
   }, []);
 
   return (
-    <section className="relative py-20 px-4 sm:px-8 bg-gradient-to-br from-green-500 via-gray-300 to-green-100 rounded-3xl shadow-xl overflow-hidden max-w-7xl mx-auto">
+    <section className="relative py-20 px-4 sm:px-8 bg-gradient-to-br from-green-500 via-gray-300 to-green-100 rounded-3xl shadow-xl overflow-hidden max-w-7xl mx-auto mb-10">
       {/* Background Glows */}
       <div className="absolute top-0 -left-32 w-96 h-96 bg-green-300 opacity-20 rounded-full blur-3xl z-0 animate-pulse"></div>
       <div className="absolute -bottom-10 -right-20 w-80 h-80 bg-emerald-300 opacity-20 rounded-full blur-2xl z-0 animate-pulse"></div>
@@ -35,15 +35,18 @@ const PageHeader = () => {
         <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight bg-gradient-to-r from-green-900 via-emerald-700 to-green-900 bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-x mb-4">
           {displayText}
         </h1>
+         <p className="text-gray-900 text-base sm:text-lg max-w-2xl mx-auto animate-fade-in-up">
+          Coming soon...
+        </p>
 
         {/* Subtitle */}
-        <p className="text-gray-900 text-base sm:text-lg max-w-2xl mx-auto animate-fade-in-up">
+        {/* <p className="text-gray-900 text-base sm:text-lg max-w-2xl mx-auto animate-fade-in-up">
           Connect with trusted professionals across Nigeria — including
           plumbers, electricians, bricklayers, architects, engineers, and more —
           for your building and renovation needs.
-        </p>
+        </p> */}
 
-        {/* Search & CTA */}
+        {/* Search & CTA
         <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4 animate-fade-in-up">
           <div className="flex gap-2 items-center bg-white rounded-xl px-3 py-2 border shadow w-full sm:w-auto">
             <i className="fas fa-search text-green-600 text-lg"></i>
@@ -53,7 +56,7 @@ const PageHeader = () => {
               className="w-full outline-none border-none text-sm px-2 py-1"
             />
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

@@ -1,21 +1,24 @@
 import React from 'react';
 import FeatureCard from './FeatureCard';
+import image1 from '../../assets/images/Tru-Estimate.png';
+import image2 from '../../assets/images/Search 2.0.png';
+import image3 from '../../assets/images/Map View.png';
 
 const features = [
   {
     title: <>TruEstimate<sup className='text-xs'>TM</sup></>,
     description: "Accurately estimate property values with AI-powered insights.",
-    imageUrl: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&auto=format&fit=crop&w=870&q=80"
+    imageUrl: image1, // using local import
   },
   {
     title: "Search 2.0",
     description: "Discover homes faster with advanced filtering and smart suggestions.",
-    imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=870&q=80"
+    imageUrl: image2, // using local import
   },
   {
     title: "Map View",
     description: "Visualize listings in real time across neighborhoods and cities.",
-    imageUrl: "https://images.unsplash.com/photo-1501183638710-841dd1904471?ixlib=rb-4.0.3&auto=format&fit=crop&w=870&q=80"
+    imageUrl: image3, // using local import
   }
 ];
 

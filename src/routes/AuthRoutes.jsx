@@ -3,16 +3,22 @@ import { Navigate } from 'react-router-dom';
 
 import SuperAdminLogin from '../pages/authPages/SuperAdminLogin';
 import Login from '../pages/authPages/Login';
+import RegistrationSuccessModal from '../pages/authPages/Success'
 import VerifyEmail from '../pages/authPages/VerifyEmail';
 import Register from '../pages/authPages/Register';
 import AdminLogin from '../pages/authPages/AdminLogin';
 import ForgotPassword from '../pages/authPages/ForgotPassword';
 import ResetPassword from '../pages/authPages/ResetPassword';
 import AgentVerification from '../pages/authPages/AgentVerify';
+import VisitorProfilePage from '../pages/authPages/Clientmore'
 import SelectRole from '../pages/authPages/selectRole';
 import PolicyPage from '../pages/authPages/policyPage'
 import GuestRoute from '../components/GuestRoute';
 import ProtectedRoute from '../components/ProtectedRoute';
+import AgencyComingSoon from '../pages/authPages/AgencyVerify'
+import ProfessionalComingSoon from '../pages/authPages/Professional'
+import HotelComingSoon from '../pages/authPages/Hotel'
+import ServiceProviderPortal from '../pages/authPages/HandymanMore'
 
 const authRoutes = [
      { 
@@ -40,7 +46,14 @@ const authRoutes = [
       </GuestRoute>
     ),
   },
-
+  { 
+    path: "/register-success", 
+    element: (
+      <GuestRoute>
+        <RegistrationSuccessModal />
+      </GuestRoute>
+    ),
+  },
    { 
     path: "/admin/login",
     element: (
@@ -49,6 +62,16 @@ const authRoutes = [
       </GuestRoute>
     ),
   },
+
+    {
+    path: '/visitor-more',
+    element: (
+      <ProtectedRoute>
+        <VisitorProfilePage />
+      </ProtectedRoute>
+    ),
+  },
+
   {
     path: '/set-role',
     element: (
@@ -75,6 +98,43 @@ const authRoutes = [
       </ProtectedRoute>
     ),
   },
+
+    {
+    path: '/agency-verification',
+    element: (
+      <ProtectedRoute>
+        <AgencyComingSoon />
+      </ProtectedRoute>
+    ),
+  },
+
+     {
+    path: '/hotel-verification',
+    element: (
+      <ProtectedRoute>
+        <HotelComingSoon />
+      </ProtectedRoute>
+    ),
+  },
+
+    {
+    path: '/professional-verification',
+    element: (
+      <ProtectedRoute>
+        <ProfessionalComingSoon />
+      </ProtectedRoute>
+    ),
+  },
+
+   {
+    path: '/service-verification',
+    element: (
+      <ProtectedRoute>
+        <ServiceProviderPortal />
+      </ProtectedRoute>
+    ),
+  },
+
   { path: '/forgot-password', element: <ForgotPassword /> },
   { path: '/reset-password/:token', element: <ResetPassword /> },
   

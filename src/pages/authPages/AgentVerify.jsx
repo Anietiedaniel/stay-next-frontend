@@ -188,7 +188,7 @@ const AgentVerification = () => {
                 <FileUpload label="Upload Your profile picture *" file={nationalId} preview={previewId} handleChange={handleIdChange} bgColor="gray" />
                 <InputField label="Phone *" value={phone} setValue={setPhone} />
                 <SelectField label="State *" value={state} setValue={setState} options={NIGERIA_STATES} />
-                <TextAreaField label="Other Info *" value={otherInfo} setValue={setOtherInfo} />
+                <InputField label="NIN *" value={otherInfo} setValue={setOtherInfo} />
               </div>
             </div>
 

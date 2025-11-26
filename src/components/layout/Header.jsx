@@ -17,13 +17,15 @@ function Header() {
   const navItemsLeft = [
     { label: 'Properties', path: '/properties' },
     { label: 'Find my Agents', path: '/find-agents' },
-    { label: 'Booking', path: '/booking' },
+    { label: 'Professionals', path: '/building' },
+    
+    
   ];
 
   const navItemsRight = [
     { label: 'Service Provider', path: '/services' },
-    { label: 'Professionals', path: '/building' },
     { label: 'Guides', path: '/guides' },
+    { label: 'About Us', path: '/about' },
 
     
   ];
@@ -169,9 +171,6 @@ function Header() {
 
           {/* Mobile Footer Actions */}
           <div className="mt-4 border-t pt-4 px-4 space-y-2">
-            <div className="text-[15px] hover:text-[#22965D] cursor-pointer">
-              <i className="fas fa-gear mr-1"></i> Site settings
-            </div>
             <Link to="/favorites" className="block hover:text-[#22965D]">
               <i className="fas fa-heart mr-1"></i>Favourite properties
             </Link>

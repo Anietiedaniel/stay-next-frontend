@@ -12,7 +12,10 @@ import AgentListings from '../sections/agentsections/AgentListing';
 import AgentPropertiesDetails from '../sections/agentsections/AgentPropertiesDetails';
 import ProfilePage from '../pages/publicPages/Workersprofile';
 import ServicesPage from '../pages/publicPages/ServicesPage';
+import ProfessionalsPage from '../pages/publicPages/Professional'
+import AboutUsPage from '../pages/publicPages/Referral'
 import NotFoundPage from '../pages/publicPages/NotFound';
+
 
 const publicRoutes = [
   {
@@ -30,6 +33,8 @@ const publicRoutes = [
       { path: 'services', element: <ServicesPage /> },
       {path: 'guides', element: <GuidesPage /> },
       {path: 'favorites', element: <FavoritesPage /> },
+      {path: 'building', element: <ProfessionalsPage /> },
+      {path: 'about', element: <AboutUsPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },

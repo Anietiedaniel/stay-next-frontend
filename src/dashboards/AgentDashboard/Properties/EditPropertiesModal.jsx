@@ -37,7 +37,7 @@ export default function EditPropertyModal({ show, onClose, initialData, onUpdate
       );
 
       setVideoPreviews(
-        initialData.youtubeVideos?.map((vid) => ({ url: vid, isNew: false })) || []
+        initialData.videos?.map((vid) => ({ url: vid, isNew: false })) || []
       );
     }
   }, [initialData]);

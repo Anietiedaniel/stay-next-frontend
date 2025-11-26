@@ -13,8 +13,8 @@ const LoadingModal = ({
   if (!loading && !success && !error) return null;
 
   let displayMessage = message;
-  let iconClass = "fa-solid fa-spinner fa-spin text-blue-500";
-  let colorClass = "text-blue-500";
+  let iconClass = "fa-solid fa-spinner fa-spin text-green-500";
+  let colorClass = "text-green-500";
 
   if (success) {
     displayMessage = successMessage;

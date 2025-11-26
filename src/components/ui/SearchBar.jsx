@@ -9,8 +9,9 @@ const SearchBar = ({
   className = "",
   selectedStates = [],
   selectedFilters = [],
-  searchBtnRef, // ✅ ref for search button passed from parent
-  onSearch,     // ✅ callback setter from parent
+  searchBtnRef,
+  onSearch,
+  basePath = "", // 🆕 NEW PROP
 }) => {
   const [properties, setProperties] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -18,7 +19,7 @@ const SearchBar = ({
   const navigate = useNavigate();
   const wrapperRef = useRef(null);
 
-  // ✅ Fetch all properties once
+  // Fetch all properties once
   useEffect(() => {
     const fetchProperties = async () => {
       try {
@@ -34,7 +35,7 @@ const SearchBar = ({
     fetchProperties();
   }, []);
 
-  // ✅ Suggestions filter
+  // Suggestions logic
   useEffect(() => {
     if (value?.length >= 2) {
       const q = value.toLowerCase().trim();
@@ -71,7 +72,7 @@ const SearchBar = ({
     }
   }, [value, properties, selectedStates, selectedFilters]);
 
-  // ✅ Actual search handler (used by Enter + button + parent + suggestion click)
+  // Search handler
   const handleSearch = React.useCallback(() => {
     const q = value.trim().toLowerCase();
     if (!q) return;
@@ -96,7 +97,6 @@ const SearchBar = ({
       );
     }
 
-    // ✅ Exact match prioritization
     const exact = filtered.find(
       (p) =>
         p.title.toLowerCase() === q ||
@@ -115,20 +115,29 @@ const SearchBar = ({
       similar = [exact, ...similar.filter((p) => p._id !== exact._id)];
     }
 
-    navigate(`/search?query=${encodeURIComponent(q)}`, {
+    // 🆕 FIX — dynamic path for public + visitor dashboard
+    const finalPath = `${basePath}/search?query=${encodeURIComponent(q)}`;
+
+    navigate(finalPath, {
       state: { results: similar },
     });
-    setSuggestions([]); // ✅ clear dropdown after search
-  }, [value, properties, selectedStates, selectedFilters, navigate]);
 
-  // ✅ Expose search handler to parent
+    setSuggestions([]);
+  }, [
+    value,
+    properties,
+    selectedStates,
+    selectedFilters,
+    navigate,
+    basePath, // 🆕 added dependency
+  ]);
+
+  // Expose search method
   useEffect(() => {
-    if (onSearch) {
-      onSearch(handleSearch);
-    }
+    if (onSearch) onSearch(handleSearch);
   }, [onSearch, handleSearch]);
 
-  // ✅ Close suggestions + clear input when clicking outside
+  // Click outside handler
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -138,13 +147,12 @@ const SearchBar = ({
         return;
       }
       setSuggestions([]);
-      if (onChange) {
-        onChange({ target: { value: "" } }); // clear input
-      }
+      onChange?.({ target: { value: "" } });
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("touchstart", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
@@ -170,11 +178,7 @@ const SearchBar = ({
                 key={s._id}
                 className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                 onClick={() => {
-                  // ✅ put suggestion into input
-                  if (onChange) {
-                    onChange({ target: { value: s.title } });
-                  }
-                  // ✅ trigger same search logic
+                  onChange?.({ target: { value: s.title } });
                   setTimeout(() => handleSearch(), 0);
                 }}
               >

@@ -51,7 +51,25 @@ const PolicyPage = ()=> {
       "All dealings must be transparent, recorded, and safe for all users.",
       "Professionals must not charge clients outside the platform for listed services.",
       "We reserve the right to review and revoke professional access for misconduct."
-    ]
+    ],
+    hotel: [
+  "All hotel bookings must be made through the platform or verified hotel channels only.",
+  "Guests should never make direct payments to hotel staff outside approved payment methods.",
+  "Full details of room type, pricing, and amenities must be clearly provided before booking.",
+  "Guests have the right to inspect their room upon arrival before confirming check-in.",
+  "Hotels must maintain cleanliness, safety, and standard hospitality requirements.",
+  "Any hidden charges or unapproved fees are strictly prohibited.",
+  "Guests must provide valid identification during check-in for security purposes.",
+  "Refunds follow the hotel's cancellation policy, which must be clearly stated and transparent.",
+  "Illegal activities, violence, or property damage by guests may lead to penalties or immediate ejection.",
+  "Hotels are responsible for the safety of guests' personal property within reasonable limits.",
+  "Staff must maintain professionalism, confidentiality, and proper customer service at all times.",
+  "Guests must report issues immediately for quick resolution by hotel management.",
+  "Hotel staff cannot request or accept bribes, special payments, or personal deals from guests.",
+  "All hotel listings must be accurate, updated, and verified before being visible on the platform.",
+  "Any violation of safety, payment, or operational rules may lead to suspension from the platform."
+]
+
   };
 
   const activePolicy = policies[role] || [];
@@ -63,11 +81,15 @@ const PolicyPage = ()=> {
     if (role === "agent") {
       navigate("/agent-verification");
     } else if(role === "visitor"){
-      navigate("/visitor-dashboard/overview");
+      navigate("/visitor-more");
     } else if (role === "agency") {
       navigate("/agency-verification");
-    } else if(role === "handyman"){
-      navigate("/handyman-dashboard/overview");
+    } else if(role === "serviceprovider"){
+      navigate("/service-verification");
+    }else if(role === "professional"){
+      navigate("/professional-verification");
+    }else if(role === "hotel"){
+      navigate("/hotel-verification");
     }else {
       navigate("/");
     }

@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from "react";
 
-function Navbar({ navItems = [ "Buying", "Renting", "Booking", "Servicing"], selectedType = "All", onSelect }) {
+function Navbar({
+  // UI labels for buttons
+  navItems = ["Buying", "Renting", "Booking", "Servicing"],
+  selectedType = "All",
+  onSelect,
+}) {
   const [active, setActive] = useState(selectedType);
   const [isMobile, setIsMobile] = useState(false);
+
+  // ✅ Map UI label → backend value
+  const mapToValue = {
+    Buying: "sale",
+    Renting: "rent",
+    Booking: "book",
+    Servicing: "service",
+  };
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -11,14 +24,15 @@ function Navbar({ navItems = [ "Buying", "Renting", "Booking", "Servicing"], sel
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Keep active tab in sync with selectedType
+  // Keep active tab synced with parent prop
   useEffect(() => {
     setActive(selectedType);
   }, [selectedType]);
 
   const handleClick = (item) => {
-    setActive(item);      // highlight immediately
-    onSelect(item);       // handle navigation / logic
+    const value = mapToValue[item] || item;
+    setActive(value); // highlight active type
+    onSelect(value);  // pass cleaned value to parent
   };
 
   return (
@@ -35,19 +49,22 @@ function Navbar({ navItems = [ "Buying", "Renting", "Booking", "Servicing"], sel
           margin: "0 auto",
         }}
       >
-        {navItems.map((item) => (
-          <button
-            key={item}
-            onClick={() => handleClick(item)}
-            className={`flex-1 text-center font-medium rounded-lg transition-all duration-200 ${
-              active === item
-                ? "bg-[#D1F0E4] text-green-700 font-semibold"
-                : "hover:bg-gray-200 text-gray-700"
-            } ${isMobile ? "py-1.5 text-sm" : "py-3 px-6 text-base"}`}
-          >
-            {item}
-          </button>
-        ))}
+        {navItems.map((item) => {
+          const value = mapToValue[item];
+          return (
+            <button
+              key={item}
+              onClick={() => handleClick(item)}
+              className={`flex-1 text-center font-medium rounded-lg transition-all duration-200 ${
+                active === value
+                  ? "bg-[#D1F0E4] text-green-700 font-semibold"
+                  : "hover:bg-gray-200 text-gray-700"
+              } ${isMobile ? "py-1.5 text-sm" : "py-3 px-6 text-base"}`}
+            >
+              {item}
+            </button>
+          );
+        })}
       </nav>
     </div>
   );

@@ -48,7 +48,7 @@ const OverviewVisitor = () => {
   return (
     <div className="p-4 md:p-6 space-y-6">
       <h1 className="text-2xl font-bold -mt-6 mb-4 text-gray-800 dark:text-gray-100">
-        Visitor Dashboard
+        My Dashboard
       </h1>
 
       {/* Expenses Section */}

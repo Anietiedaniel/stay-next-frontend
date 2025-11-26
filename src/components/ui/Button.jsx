@@ -3,7 +3,7 @@ import React from "react";
 
 const ButtonGroup = ({ buttons = [], selected = null, onSelect = () => {}, className = "" }) => {
   return (
-    <div className={`w-full max-w-full md:w-[210px] bg-gray-100 border border-gray-400 px-1.5 py-1.5 rounded-t-xl md:rounded-xl flex justify-between items-center gap-2 md:gap-1 overflow-visible mt-0 ${className}`}>
+    <div className={`w-full max-w-full md:w-[210px] border border-gray-400 px-1.5 py-1.5 rounded-t-xl md:rounded-4xl flex justify-between items-center gap-2 md:gap-1 overflow-visible mt-0  ${className}`}>
       {buttons.map((label, index) => (
         <button
           key={index}

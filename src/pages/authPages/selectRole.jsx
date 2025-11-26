@@ -3,25 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
 import API from '../../utils/axios';
 import useAuth from '../../hooks/useAuth';
+
 const SelectRole = () => {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth(); // No need for fetchUser here
+  const { user, updateUser } = useAuth();
 
-  // helper: map role to dashboard path
   const getDashboardPath = (role) => {
     switch (role) {
       case 'visitor':
-        return '/policy';
       case 'agent':
-        return '/policy';
-      case 'handyman':
+      case 'serviceprovider':
+      case 'agency':
+      case 'hotel':
+      case 'professional':
         return '/policy';
       default:
         return '/';
     }
   };
 
-  // The Effect will handle navigation ONLY after user object is stable
   useEffect(() => {
     if (user && !user.isNewUser && user.role) {
       navigate(getDashboardPath(user.role), { replace: true });
@@ -30,28 +30,23 @@ const SelectRole = () => {
 
   const handleSelect = async (role) => {
     try {
-      const res = await API.patch(
-        '/auth/set-role',
-        { role },
-        { withCredentials: true }
-      );
-
+      const res = await API.patch('/auth/set-role', { role }, { withCredentials: true });
       const updatedUser = res.data.user;
-
-      if (!updatedUser) {
-        alert('Something went wrong: no user returned');
-        return;
-      }
-      
-      // ✅ Update the context. The useEffect will handle navigation.
-      updateUser(updatedUser); 
-      console.log('✅ Role updated in context:', updatedUser.role);
-
+      if (!updatedUser) return alert('Something went wrong: no user returned');
+      updateUser(updatedUser);
     } catch (error) {
-      console.error('❌ Error setting role:', error);
       alert(error.response?.data?.message || 'Something went wrong. Please try again.');
     }
   };
+
+  const roleButtons = [
+    { label: "I'm an Agent / Landlord", role: 'agent', className: 'bg-green-600 hover:bg-green-700' },
+    { label: 'We are Real Estate Company', role: 'agency', className: 'bg-green-500 hover:bg-green-600' },
+    { label: "I'm a Buyer / Renter", role: 'visitor', className: 'bg-black hover:bg-gray-800' },
+    { label: "I'm a Service Provider", role: 'serviceprovider', className: 'bg-gray-500 hover:bg-gray-600' },
+    { label: "I'm a Professional", role: 'professional', className: 'bg-gray-700 hover:bg-gray-800' },
+    { label: "We own Hotel / Event Hall", role: 'hotel', className: 'bg-gray-700 hover:bg-gray-800' },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
@@ -59,56 +54,19 @@ const SelectRole = () => {
       <h2 className="text-2xl md:text-3xl font-bold mb-8 text-gray-700 text-center">
         Let’s know who you are
       </h2>
-      <div className="md:flex grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 justify-center items-center">
-  {/* Agent Column */}
-  <div className="flex flex-col items-center gap-4">
-    <button
-      onClick={() => handleSelect('agent')}
-      className="px-6 py-3 w-60 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"
-    >
-      I'm an Agent
-    </button>
-    <button
-      onClick={() => handleSelect('agent')}
-      className="px-6 py-3 w-60 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
-    >
-      We are Real Estate Agency
-    </button>
-  </div>
 
-  {/* Buyer & Renter */}
-  <div className="flex flex-col gap-4">
-    <button
-      onClick={() => handleSelect('visitor')}
-      className="px-6 py-3 w-60 bg-black text-white rounded-lg shadow hover:bg-gray-800 transition"
-    >
-      I'm a Buyer
-    </button>
-    <button
-      onClick={() => handleSelect('visitor')}
-      className="px-6 py-3 w-60 bg-black text-white rounded-lg shadow hover:bg-gray-800 transition"
-    >
-      I'm a Renter
-    </button>
-  </div>
-
-  {/* Service Providers & Professionals */}
-  <div className="flex flex-col gap-4">
-    <button
-      onClick={() => handleSelect('handyman')}
-      className="px-6 py-3 w-60 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition"
-    >
-      I'm a Service Provider
-    </button>
-    <button
-      onClick={() => handleSelect('handyman')}
-      className="px-6 py-3 w-60 bg-gray-700 text-white rounded-lg shadow hover:bg-gray-800 transition"
-    >
-      I'm a Professional
-    </button>
-  </div>
-</div>
-
+      {/* 2-per-row desktop, stacked mobile */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
+        {roleButtons.map((btn, idx) => (
+          <button
+            key={idx}
+            onClick={() => handleSelect(btn.role)}
+            className={`w-full py-3 text-white rounded-lg shadow transition ${btn.className}`}
+          >
+            {btn.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

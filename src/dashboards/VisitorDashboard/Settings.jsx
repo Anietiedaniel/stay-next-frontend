@@ -2,228 +2,222 @@ import React, { useState, useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
 import API from "../../utils/axios";
 
-const SettingsVisitor = () => {
-  const { user, updateUser } = useAuth();
+const VisitorSettingsPage = () => {
+const { user, updateUser } = useAuth();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    role: "",
-    notifications: true,
-  });
+const [formData, setFormData] = useState({
+name: "",
+email: "",
+role: "",
+password: "",
+notifications: true,
+});
 
 const [darkMode, setDarkMode] = useState(
-  localStorage.getItem("theme") === "dark"
+localStorage.getItem("theme") === "dark"
 );
+
+const [uploading, setUploading] = useState(false);
 
 // Sync theme with <html> and localStorage
 useEffect(() => {
-  const root = document.documentElement;
-  if (darkMode) {
-    root.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-  } else {
-    root.classList.remove("dark");
-    localStorage.setItem("theme", "light");
-  }
+const root = document.documentElement;
+if (darkMode) {
+root.classList.add("dark");
+localStorage.setItem("theme", "dark");
+} else {
+root.classList.remove("dark");
+localStorage.setItem("theme", "light");
+}
 }, [darkMode]);
 
-  const [uploading, setUploading] = useState(false);
+// Populate form from user context
+useEffect(() => {
+if (user) {
+setFormData({
+name: user.name || "",
+email: user.email || "",
+role: user.role || "",
+password: "",
+notifications: user.notifications ?? true,
+});
+}
+}, [user]);
 
-  // Populate form from user context
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || "",
-        email: user.email || "",
-        role: user.role || "",
-        notifications: user.notifications ?? true,
-      });
-    }
-  }, [user]);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  };
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const data = new FormData();
-    data.append("image", file);
-
-    try {
-      setUploading(true);
-      const res = await API.post("/auth/upload-profile", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      const imageUrl = res.data; // match your backend response
-      console.log("Uploaded image URL:", imageUrl);
-      await API.put("/auth/settings", { profileImage: imageUrl });
-
-      updateUser({ ...user, profileImage: imageUrl });
-    } catch (err) {
-      console.error("Upload error:", err);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await API.put("/auth/settings", formData);
-      updateUser(res.data.user);
-      alert("Settings updated successfully!");
-    } catch (err) {
-      console.error(err);
-      alert("Error updating settings");
-    }
-  };
-
-  const handleReset = () => {
-    setFormData({
-      name: user.name || "",
-      email: user.email || "",
-      role: user.role || "",
-      notifications: user.notifications ?? true,
-    });
-  };
-
-  return (
-    <div className="min-h-screen flex items-center justify-center py-10 px-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-      <div className="w-full max-w-3xl bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden transition-colors duration-300">
-        {/* Header */}
-        <div className="bg-green-600 text-white py-6 px-6">
-          <h2 className="text-2xl font-semibold flex items-center gap-2">
-            <i className="fas fa-cogs"></i> Account Settings
-          </h2>
-          <p className="text-sm opacity-80">Manage your profile & preferences</p>
-        </div>
-
-        {/* Dark Mode Toggle */}
-        <div className="flex justify-end p-4">
-          <button
-            onClick={() => setDarkMode((prev) => !prev)}
-            className="flex items-center gap-2 px-3 py-1 text-sm border rounded border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-          >
-            <i className={`fas ${darkMode ? "fa-sun" : "fa-moon"}`}></i>
-            {darkMode ? "Light Mode" : "Dark Mode"}
-          </button>
-        </div>
-
-        {/* Profile Image Upload */}
-        <div className="flex flex-col items-center mb-6 relative px-6">
-          <div className="relative">
-            {user?.profileImage ? (
-              <img
-                src={user.profileImage}
-                alt="Profile"
-                className="w-20 h-20 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-4xl text-gray-600">
-                <i className="fas fa-user"></i>
-              </div>
-            )}
-            <label className="absolute bottom-0 right-0 bg-green-500 rounded-full px-2 cursor-pointer">
-              <i className="fas fa-camera text-white text-sm"></i>
-              <input type="file" className="hidden" onChange={handleImageUpload} />
-            </label>
-          </div>
-          {uploading && <span className="text-xs text-green-600 mt-1">Uploading...</span>}
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <i className="fas fa-user"></i> Profile Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Full Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-gray-50 dark:bg-gray-700 dark:text-white border-gray-300 dark:border-gray-600"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-gray-50 dark:bg-gray-700 dark:text-white border-gray-300 dark:border-gray-600"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Role</label>
-                <input
-                  type="text"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-gray-50 dark:bg-gray-700 dark:text-white border-gray-300 dark:border-gray-600"
-                  disabled
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Preferences */}
-          <div>
-            <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-              <i className="fas fa-sliders-h"></i> Preferences
-            </h3>
-            <div className="flex flex-col gap-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="notifications"
-                  checked={formData.notifications}
-                  onChange={handleChange}
-                  className="w-5 h-5 text-green-600 rounded"
-                />
-                <span>
-                  <i className="fas fa-bell text-green-600"></i> Enable Notifications
-                </span>
-              </label>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-between pt-4 border-t border-gray-300 dark:border-gray-600">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition flex items-center gap-2 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-            >
-              <i className="fas fa-undo"></i> Reset
-            </button>
-            <button
-              type="submit"
-              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2"
-            >
-              <i className="fas fa-save"></i> Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+const handleChange = (e) => {
+const { name, value, type, checked } = e.target;
+setFormData({
+...formData,
+[name]: type === "checkbox" ? checked : value,
+});
 };
 
-export default SettingsVisitor;
+const handleImageUpload = async (e) => {
+const file = e.target.files[0];
+if (!file) return;
+
+const data = new FormData();
+data.append("image", file);
+
+try {
+  setUploading(true);
+  const res = await API.post("/auth/upload-profile", data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  const imageUrl = res.data.profileImage;
+  await API.put("/auth/settings", { profileImage: imageUrl });
+
+  updateUser({ ...user, profileImage: imageUrl });
+} catch (err) {
+  console.error("Upload error:", err);
+} finally {
+  setUploading(false);
+}
+
+
+};
+
+const handleSubmit = async (e) => {
+e.preventDefault();
+try {
+const res = await API.put("/auth/settings", formData);
+updateUser(res.data.user);
+alert("Settings updated successfully!");
+} catch (err) {
+console.error(err);
+alert("Error updating settings");
+}
+};
+
+const handleReset = () => {
+setFormData({
+name: user.name || "",
+email: user.email || "",
+role: user.role || "",
+password: "",
+notifications: user.notifications ?? true,
+});
+};
+
+return ( <div className="max-w-3xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 rounded-xl shadow-md mt-10"> <div className="flex justify-between items-center mb-6"> <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Settings</h2>
+<button
+onClick={() => setDarkMode(!darkMode)}
+className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+>
+{darkMode ? "Light Mode" : "Dark Mode"} </button> </div>
+
+    {/* Profile Image Upload */}
+      <div className="flex flex-col items-center mb-6 relative">
+        <div className="relative">
+          {user?.profileImage? (
+            <img
+              src={user?.profileImage}
+              alt="Profile"
+              className="w-32 h-32 rounded-full object-cover cursor-pointer"
+              onChange={handleImageUpload}
+            />
+          ) : (
+            <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-3xl text-gray-600" onChange={handleImageUpload}>
+              <i className="fas fa-user"></i>
+
+            </div>
+          )}
+          <label className="absolute bottom-0 right-0 bg-green-500 rounded-full px-1 cursor-pointer">
+            <i className="fas fa-camera text-white text-2xl"></i>
+            <input type="file" className="hidden" onChange={handleImageUpload} />
+          </label>
+        </div>
+
+        {uploading && <span className="text-xs text-green-600">Uploading...</span>}
+      </div>
+  <form onSubmit={handleSubmit} className="space-y-5">
+    {/* Name */}
+    <div className="flex items-center space-x-3">
+      <i className="fa fa-user text-gray-500 dark:text-gray-300"></i>
+      <input
+        type="text"
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        placeholder="Name"
+        className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-green-400 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+      />
+    </div>
+
+    {/* Email */}
+    <div className="flex items-center space-x-3">
+      <i className="fa fa-envelope text-gray-500 dark:text-gray-300"></i>
+      <input
+        type="email"
+        name="email"
+        value={formData.email}
+        readOnly
+        className="flex-1 px-3 py-2 border rounded bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 cursor-not-allowed"
+      />
+    </div>
+
+    {/* Role */}
+    {/* <div className="flex items-center space-x-3">
+      <i className="fa fa-user text-gray-500 dark:text-gray-300"></i>
+      <input
+        type="text"
+        name="role"
+        value={formData.role}
+        readOnly
+        className="flex-1 px-3 py-2 border rounded bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 cursor-not-allowed"
+      />
+    </div> */}
+
+    {/* Password */}
+    <div className="flex items-center space-x-3">
+      <i className="fa fa-key text-gray-500 dark:text-gray-300"></i>
+      <input
+        type="password"
+        name="password"
+        value={formData.password}
+        onChange={handleChange}
+        placeholder="New Password"
+        className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-green-400 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+      />
+    </div>
+
+    {/* Notifications */}
+    <div className="flex items-center space-x-3">
+      <i className="fa fa-bell text-gray-500 dark:text-gray-300"></i>
+      <label className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          name="notifications"
+          checked={formData.notifications}
+          onChange={handleChange}
+          className="w-5 h-5"
+        />
+        <span className="text-gray-700 dark:text-gray-200">Enable Notifications</span>
+      </label>
+    </div>
+
+    {/* Buttons */}
+    <div className="flex space-x-3">
+      <button
+        type="submit"
+        className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+      >
+        Save Changes
+      </button>
+      <button
+        type="button"
+        onClick={handleReset}
+        className="px-6 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-400 dark:hover:bg-gray-600 transition"
+      >
+        Reset
+      </button>
+    </div>
+  </form>
+</div>
+
+
+);
+};
+
+export default VisitorSettingsPage;

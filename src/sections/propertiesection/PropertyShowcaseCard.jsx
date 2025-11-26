@@ -66,10 +66,12 @@ function PropertyShowcaseCard() {
 }
 
 /* ---------------- PROPERTY CARD ---------------- */
-function PropertyCard({ property, navigate }) {
+function PropertyCard({ property }) {
+
+  const navigate = useNavigate();
   const {
     images = [],
-    youtubeVideos = [],
+    videos = [],
     price,
     type,
     bedrooms,
@@ -96,9 +98,10 @@ function PropertyCard({ property, navigate }) {
   const sliderRef = useRef(null);
 
   const mediaSlides = [
-    ...youtubeVideos.map((url) => ({ type: "youtube", url })),
-    ...images.map((img) => ({ type: "image", src: img })),
-  ];
+  ...videos.map((src) => ({ type: "video", src })), // ⭐ videos first
+  ...images.map((src) => ({ type: "image", src })),
+];
+
 
   const extendedSlides =
     mediaSlides.length > 0
@@ -128,11 +131,6 @@ function PropertyCard({ property, navigate }) {
   };
 
   const isLand = type?.toLowerCase() === "land";
-
-  const getYouTubeThumbnail = (url) => {
-    const match = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/);
-    return match ? `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg` : null;
-  };
 
   return (
     <>
@@ -174,33 +172,24 @@ function PropertyCard({ property, navigate }) {
             }`}
             style={{ transform: `translateX(-${current * 100}%)` }}
           >
-            {extendedSlides.map((slide, index) =>
-              slide.type === "youtube" ? (
-                <a
-                  key={index}
-                  href={slide.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative w-full flex-shrink-0 h-72"
-                >
-                  <img
-                    src={getYouTubeThumbnail(slide.url)}
-                    alt="YouTube Preview"
-                    className="w-full h-72 object-cover"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <i className="fab fa-youtube text-red-600 text-5xl bg-white rounded-full p-3 shadow-lg"></i>
-                  </div>
-                </a>
-              ) : (
-                <img
-                  key={index}
-                  src={slide.src}
-                  alt={`Slide ${index}`}
-                  className="w-full flex-shrink-0 h-72 object-cover"
-                />
-              )
-            )}
+{extendedSlides.map((slide, index) => (
+  <div key={index} className="w-full flex-shrink-0 h-72 relative">
+    {slide.type === "video" ? (
+      <video
+        src={slide.src}
+        controls
+        className="w-full h-72 object-cover bg-black rounded"
+      />
+    ) : (
+      <img
+        src={slide.src}
+        alt={`Slide ${index}`}
+        className="w-full h-72 object-cover rounded"
+      />
+    )}
+  </div>
+))}
+
           </div>
 
           {/* Agent Info */}

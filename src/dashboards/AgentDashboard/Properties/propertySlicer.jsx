@@ -1,28 +1,25 @@
-// PropertySlider.js
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function PropertySlider({ videos = [], images = [], _id }) {
   const navigate = useNavigate();
-
-  const [isAnimating, setIsAnimating] = useState(true);
   const sliderRef = useRef(null);
+  const [current, setCurrent] = useState(1);
+  const [isAnimating, setIsAnimating] = useState(true);
 
-  // ✅ Build slides: videos first, then images
+  // Combine videos and images into one media array
   const mediaSlides = [
-    ...videos.map((url) => ({ type: "youtube", url })),
-    ...images.map((img) => ({ type: "image", src: img })),
+    ...videos.map((url) => ({ type: "video", url })),
+    ...images.map((src) => ({ type: "image", src })),
   ];
 
-  // ✅ Infinite loop extension
+  // Extend slides for infinite loop
   const extendedSlides =
     mediaSlides.length > 0
       ? [mediaSlides[mediaSlides.length - 1], ...mediaSlides, mediaSlides[0]]
       : [];
 
-  // ✅ Start with the very first media (video if exists, else image)
-  const [current, setCurrent] = useState(mediaSlides.length > 0 ? 1 : 0);
-
+  // Handle infinite loop transition
   const handleTransitionEnd = () => {
     if (current === 0) {
       setIsAnimating(false);
@@ -43,21 +40,12 @@ export default function PropertySlider({ videos = [], images = [], _id }) {
   const prevSlide = () => setCurrent((prev) => prev - 1);
   const nextSlide = () => setCurrent((prev) => prev + 1);
 
-  // ✅ Extract YouTube thumbnail
-  const getYouTubeThumbnail = (url) => {
-    const match = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/);
-    return match
-      ? `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`
-      : null;
-  };
-
-  // ✅ Actions
+  // Navigation actions
   const handleView = () => navigate(`/properties/${_id}`);
   const handleEdit = () => navigate(`/properties/edit/${_id}`);
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this property?")) {
       console.log("Deleting property:", _id);
-      // TODO: call your delete API here
     }
   };
 
@@ -71,54 +59,45 @@ export default function PropertySlider({ videos = [], images = [], _id }) {
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg group">
-      {/* Slider */}
+      {/* Slider Container */}
       <div
         ref={sliderRef}
         onTransitionEnd={handleTransitionEnd}
-        className={`flex ${
-          isAnimating ? "transition-transform duration-500 ease-in-out" : ""
-        }`}
+        className={`flex ${isAnimating ? "transition-transform duration-500 ease-in-out" : ""}`}
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
-        {extendedSlides.map((slide, index) =>
-          slide.type === "youtube" ? (
-            <a
-              key={index}
-              href={slide.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative w-full flex-shrink-0 h-56"
-            >
+        {extendedSlides.map((slide, index) => (
+          <div key={index} className="w-full flex-shrink-0 h-56 relative">
+            {slide.type === "video" ? (
+              <video
+                controls
+                className="w-full h-full object-cover rounded"
+                preload="metadata"
+              >
+                <source src={slide.url} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
               <img
-                src={getYouTubeThumbnail(slide.url)}
-                alt="YouTube Preview"
-                className="w-full h-56 object-cover"
+                src={slide.src}
+                alt={`Slide ${index}`}
+                className="w-full h-full object-cover rounded"
               />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <i className="fab fa-youtube text-red-600 text-4xl bg-white rounded-full p-2 shadow-lg"></i>
-              </div>
-            </a>
-          ) : (
-            <img
-              key={index}
-              src={slide.src}
-              alt={`Slide ${index}`}
-              className="w-full flex-shrink-0 h-56 object-cover"
-            />
-          )
-        )}
+            )}
+          </div>
+        ))}
       </div>
 
       {/* Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute top-1/2 left-3 -translate-y-1/2 bg-white text-black rounded-full py-1 px-2 shadow opacity-0 group-hover:opacity-100"
+        className="absolute top-1/2 left-3 -translate-y-1/2 bg-white text-black rounded-full py-1 px-2 shadow opacity-0 group-hover:opacity-100 transition"
       >
         <i className="fas fa-chevron-left"></i>
       </button>
       <button
         onClick={nextSlide}
-        className="absolute top-1/2 right-3 -translate-y-1/2 bg-white text-black rounded-full py-1 px-2 shadow opacity-0 group-hover:opacity-100"
+        className="absolute top-1/2 right-3 -translate-y-1/2 bg-white text-black rounded-full py-1 px-2 shadow opacity-0 group-hover:opacity-100 transition"
       >
         <i className="fas fa-chevron-right"></i>
       </button>

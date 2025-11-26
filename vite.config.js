@@ -8,6 +8,9 @@ export default defineConfig({
   server: {
     middlewareMode: false,
   },
+  optimizeDeps: {
+    exclude: ['@ffmpeg/ffmpeg'], // <-- prevent Vite pre-bundling issues
+  },
   configureServer(server) {
     server.middlewares.use(
       history({

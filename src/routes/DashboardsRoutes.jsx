@@ -14,18 +14,41 @@ import AgentDashboard from "../dashboards/AgentDashboard/AgentDashboard";
 import AgentOverview from "../dashboards/AgentDashboard/Overview";
 import AgentProperties from "../dashboards/AgentDashboard/Properties";
 import AgentClients from "../dashboards/AgentDashboard/Clients";
-import AgentSettings from "../dashboards/AgentDashboard/Settings";
 import AgentPayments from "../dashboards/AgentDashboard/Payment";
-
+import AgentSettingsPage from "../dashboards/AgentDashboard/Settings";
+import AgentReferralPage from "../dashboards/AgentDashboard/Referral";
 
 // ================== VISITOR DASHBOARD ==================
 import VisitorDashboard from "../dashboards/VisitorDashboard/VisitorDashboard";
 import VisitorOverview from "../dashboards/VisitorDashboard/Overview";
-import VisitorProperties from "../dashboards/VisitorDashboard/Properties";
+import PropertiesPage from "../dashboards/VisitorDashboard/Properties";
+
+import PurposePage from "../dashboards/VisitorDashboard/purposePage";
+
+import AgentListings from "../dashboards/VisitorDashboard/AgentListing";
+
+import AgentPropertiesDetails from '../dashboards/VisitorDashboard/AgentPropertiesDetails';
+
+import SearchResultsPage from "../dashboards/VisitorDashboard/SearchResults";
+
+import VisitorSettingsPage from "../dashboards/VisitorDashboard/Settings";
+
+import ClientReferralPage from "../dashboards/VisitorDashboard/Referral";
+
+import BuyerProfessionalsPage from "../dashboards/VisitorDashboard/Professionals"
+
+import BuyerServiceProvidersPage from "../dashboards/VisitorDashboard/ServiceProvider"
+
+import PaymentTab from "../dashboards/VisitorDashboard/Payments"
+
+;
+
+
+
+
 
 // ================== ROUTES ==================
 const dashboardRoutes = [
-
 
   // ===== Super Admin =====
   {
@@ -69,8 +92,9 @@ const dashboardRoutes = [
       { path: "overview/*", element: <AgentOverview /> },
       { path: "properties/*", element: <AgentProperties /> },
       { path: "clients/*", element: <AgentClients /> },
-      { path: "settings/*", element: <AgentSettings /> },
+      { path: "settings/*", element: <AgentSettingsPage /> },
       { path: "payments/*", element: <AgentPayments /> },
+      {path: "referrals/*", element: <AgentReferralPage />},
     ],
   },
 
@@ -86,7 +110,19 @@ const dashboardRoutes = [
     children: [
       { index: true, element: <Navigate to="overview" replace /> },
       { path: "overview/*", element: <VisitorOverview /> },
-      { path: "properties/*", element: <VisitorProperties /> },
+      { path: "properties/*", element: <PropertiesPage/> },
+      { path: "purpose/*", element: <PurposePage /> },
+      { path:"agents/:id/listings/*", element:<AgentListings />},
+      {path:"properties/:id/*", element:<AgentPropertiesDetails />},
+      {path: 'search', element: <SearchResultsPage />},
+      { path: "settings/*", element: <VisitorSettingsPage /> },
+      { path: "referrals/*", element: <ClientReferralPage /> },
+      { path: "professionals/*", element: <BuyerProfessionalsPage /> },
+      { path: "workers/*", element: <BuyerServiceProvidersPage /> },
+       { path: "payments/*", element: <PaymentTab /> },
+      
+      
+      
     ],
   },
 ]

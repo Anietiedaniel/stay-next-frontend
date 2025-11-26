@@ -71,7 +71,7 @@ function DropdownGroup({
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="bg-gray-100 border border-gray-400 py-3 px-2 rounded-xl shadow-md flex items-center justify-between w-full md:w-[210px]"
+        className=" border border-gray-400 py-3 px-2 rounded-xl shadow-md flex items-center justify-between w-full md:w-[210px]"
       >
         <span className="text-black max-w-[120px] truncate">{displayTitle}</span>
         <i
@@ -83,7 +83,7 @@ function DropdownGroup({
 
       {/* Desktop Dropdown */}
       {isOpen && (
-        <div className="hidden md:block absolute mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-2 w-fit min-w-[300px] z-[9999999]">
+        <div className="hidden md:block absolute mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-2 w-fit min-w-[300px] z-[9999999] dark:bg-gray-700 dark:text-gray-100">
           {/* Tabs */}
           <div className="border-b pb-3 mb-4 relative">
             <div className="flex justify-between px-1 text-xl">
@@ -122,7 +122,7 @@ function DropdownGroup({
                   onClick={() => {
                     if (!readOnly) toggleItem(sectionTitle, item);
                   }}
-                  className={`px-1 py-2 text-sm ${readOnly ? "cursor-default" : "cursor-pointer"} transition text-black border rounded-3xl text-center ${
+                  className={`px-1 py-2 text-sm ${readOnly ? "cursor-default" : "cursor-pointer"} transition text-black border rounded-3xl text-center dark:bg-gray-700 dark:text-gray-100 ${
                     isSelected
                       ? "bg-[#D1F0E2] font-bold text-green-600 border-green-600"
                       : "bg-gray-100 hover:bg-[#f5f5f5]"

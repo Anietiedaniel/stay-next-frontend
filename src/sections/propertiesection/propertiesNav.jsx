@@ -63,6 +63,7 @@ const PropertiesNav = ({ onFilterChange }) => {
             selectedStates={selectedStates}
             selectedFilters={selectedFilters}
             searchBtnRef={searchBtnRef}
+            basePath=""
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();

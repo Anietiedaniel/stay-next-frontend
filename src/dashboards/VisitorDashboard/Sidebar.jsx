@@ -5,10 +5,11 @@ import logo from '../../assets/images/logo.png';
 import useAuth from '../../hooks/useAuth';
 
 const tabs = [
-  { key: 'overview', label: 'Overview', icon: 'fa-chart-line' },
-  { key: 'properties', label: 'My Properties', icon: 'fa-building' },
-  { key: 'agents', label: 'My Agents', icon: 'fa-users' },
-  { key: 'workers', label: 'My Handy-men', icon: 'fa-users' },
+  { key: 'overview', label: 'Overview', icon: 'fa-chart-line'},
+  { key: 'properties', label: 'Properties', icon: 'fa-building' },
+  { key: 'workers', label: 'Service Provider', icon: 'fa-users' },
+  { key: 'professionals', label: 'Professionals', icon: 'fa-user-tie' },
+  {key: 'referrals', label: 'Referrals', icon: 'fa-user-friends' },
   { key: 'payments', label: 'Payments', icon: 'fa-money-check-alt' },
   { key: 'settings', label: 'Settings', icon: 'fa-user-cog' },
   { key: 'logout', label: 'Logout', icon: 'fa-sign-out-alt' },
@@ -20,28 +21,29 @@ const Sidebar = ({ menuOpen, setMenuOpen }) => {
   const navigate = useNavigate();
 
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const formData = new FormData();
-    formData.append('image', file);
+  const formData = new FormData();
+  formData.append('image', file);
 
-    try {
-      setUploading(true);
-      const res = await API.post('/auth/upload-profile', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+  try {
+    setUploading(true);
 
-      const imageUrl = res.data.secure_url;
-      await API.put(`/auth/upload-profile`, { profileImage: imageUrl });
+    const res = await API.post('/auth/upload-profile', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
 
-      updateUser({ ...user, profileImage: imageUrl }); // Update context
-    } catch (err) {
-      console.error('Upload error:', err);
-    } finally {
-      setUploading(false);
-    }
-  };
+    const imageUrl = res.data.profileImage;
+
+    updateUser({ ...user, profileImage: imageUrl }); // update context
+  } catch (err) {
+    console.error('Upload error:', err.response?.data?.message || err.message);
+  } finally {
+    setUploading(false);
+  }
+};
+
   console.log(user)
 
   const handleLogout = () => {
@@ -52,7 +54,7 @@ const Sidebar = ({ menuOpen, setMenuOpen }) => {
   return (
     <aside
       className={`
-        fixed top-0 left-0 h-full z-50 bg-white dark:bg-gray-800 shadow p-4 text-sm 
+        fixed top-0 left-0 h-full z-50 space-y-2 text-lg z-44 md:text-sm bg-white dark:bg-gray-800 shadow p-4 text-sm 
         w-2/3 sm:w-1/2 lg:w-64 transform transition-transform duration-500 ease-in-out
         ${menuOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:relative lg:translate-x-0 lg:block
@@ -81,9 +83,9 @@ const Sidebar = ({ menuOpen, setMenuOpen }) => {
 
       {/* Profile image and name */}
       <div className="flex flex-col items-center mb-6 relative">
-        <p className="text-gray-600 dark:text-gray-100 text-xs rounded-xl bg-green-200 dark:bg-green-800 px-1.5 font-bold py-0.5 absolute z-20 ml-28">
+        {/* <p className="text-gray-600 dark:text-gray-100 text-xs rounded-xl bg-green-200 dark:bg-green-800 px-1.5 font-bold py-0.5 absolute z-20 ml-28">
           Visitor
-        </p>
+        </p> */}
 
         <div className="relative">
           {console.log("test: ", user?.profileImage)}
@@ -111,7 +113,7 @@ const Sidebar = ({ menuOpen, setMenuOpen }) => {
       </div>
 
       {/* Navigation links */}
-      <ul className="space-y-1.5">
+      <ul className="space-y-3 text-lg">
         {tabs.map((item) => (
           <li key={item.key} onClick={() => setMenuOpen(false)}>
             {item.key === 'logout' ? (

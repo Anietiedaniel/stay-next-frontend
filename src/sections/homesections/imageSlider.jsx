@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ✅ Import for routing
+import { useNavigate } from 'react-router-dom';
 import '../../styles/imageSlider.css';
+
+import image1 from '../../assets/images/Electrical Services.png';
+import image2 from '../../assets/images/Engineering Services.png';
+import image3 from '../../assets/images/Plumbing Services.png';
 
 const slides = [
   {
-    bgImage: 'https://images.unsplash.com/photo-1591696205602-52c5b57f5ec0?auto=format&fit=crop&w=1200&q=80', // Electrician
+    bgImage: image1,
     text: 'Professional Electrical Services',
   },
   {
-    bgImage: 'https://images.unsplash.com/photo-1590080875293-9e1f24c85a57?auto=format&fit=crop&w=1200&q=80', // Plumber
-    text: 'Reliable Plumbing Solutions',
+    bgImage: image2,
+    text: 'Reliable Engineering Solutions',
   },
   {
-    bgImage: 'https://images.unsplash.com/photo-1600585153837-51d7c2e3f1a4?auto=format&fit=crop&w=1200&q=80', // Painter
-    text: 'Expert Home Painting',
+    bgImage: image3,
+    text: 'Expert Plumbing Services',
   },
 ];
 
@@ -23,7 +27,7 @@ const ImageSlider = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [animating, setAnimating] = useState(false);
 
-  const navigate = useNavigate(); // ✅ Navigation hook
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isHovered || animating) return;
@@ -45,7 +49,7 @@ const ImageSlider = () => {
       setCurrent(targetIndex);
       setNext(null);
       setAnimating(false);
-    }, 500);
+    }, 300);
   };
 
   const handleClick = (index) => {
@@ -55,7 +59,7 @@ const ImageSlider = () => {
   };
 
   const handleViewMoreClick = () => {
-    navigate('/technicians'); // ✅ Navigate on button click
+    navigate('/building');
   };
 
   return (
@@ -76,11 +80,13 @@ const ImageSlider = () => {
           zIndex: 1,
         }}
       >
-        <div className="overlay">
-          <h2 className="heading">{slides[current].text}</h2>
-          <p className="paragraph">Hire skilled technicians for your home</p>
-          <button className="button" onClick={handleViewMoreClick}>View More</button>
-        </div>
+        {/* Responsive Button Position */}
+          <button
+            className="button absolute bottom-4 left-4 md:bottom-6 md:right-6 md:left-auto"
+            onClick={handleViewMoreClick}
+          >
+            View More
+          </button>
       </div>
 
       {/* Incoming Slide */}
@@ -96,11 +102,12 @@ const ImageSlider = () => {
             zIndex: 2,
           }}
         >
-          <div className="overlay">
-            <h2 className="heading">{slides[next].text}</h2>
-            <p className="paragraph">Hire skilled technicians for your home</p>
-            <button className="button" onClick={handleViewMoreClick}>View More</button>
-          </div>
+            <button
+              className="button absolute bottom-4 left-4 md:bottom-6 md:right-6 md:left-auto"
+              onClick={handleViewMoreClick}
+            >
+              View More
+            </button>
         </div>
       )}
 
