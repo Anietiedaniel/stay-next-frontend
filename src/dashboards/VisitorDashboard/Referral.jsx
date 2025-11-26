@@ -22,7 +22,7 @@ const ClientReferralPage = () => {
   const fetchReferralCode = async () => {
     if (!userId) return;
     try {
-      const res = await axios.get("http://localhost:3006/api/clients/referral/code", { headers: { "x-user-id": userId } });
+      const res = await axios.get("https://stay-next-visitor.onrender.com/api/clients/referral/code", { headers: { "x-user-id": userId } });
       setReferralCode(res.data.code);
       setReferralLink(`${window.location.origin}/register?ref=${res.data.code}`);
     } catch (err) {
@@ -33,7 +33,7 @@ const ClientReferralPage = () => {
   const fetchDashboard = async () => {
     if (!userId) return;
     try {
-      const res = await axios.get("http://localhost:3006/api/clients/referral/data", { headers: { "x-user-id": userId } });
+      const res = await axios.get("https://stay-next-visitor.onrender.com/api/clients/referral/data", { headers: { "x-user-id": userId } });
       const newTotal = res.data.totalReferrals || 0;
 
       if (prevReferralCount.current > 0 && newTotal > prevReferralCount.current) {

@@ -28,7 +28,7 @@ const VisitorProfilePage = () => {
       setLoading(true);
       setErrorMessage("");
       const res = await axios.post(
-        "http://localhost:3006/api/clients/create",
+        "https://stay-next-visitor.onrender.com/api/clients/create",
         { phone, state },
         { headers: { "x-user-id": user?._id } }
       );

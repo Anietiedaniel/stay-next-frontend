@@ -12,7 +12,7 @@ const BuyerDashboardOverview = () => {
   const fetchOverview = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:3006/api/clients/overview", {headers: { "x-user-id": userId }});
+      const res = await axios.get("https://stay-next-visitor.onrender.com/api/clients/overview", {headers: { "x-user-id": userId }});
       console.log("overview:", res);
       setOverview(res.data);
     } catch (err) {
