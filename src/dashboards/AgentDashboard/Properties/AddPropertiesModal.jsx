@@ -681,13 +681,20 @@ const handleSubmit = async (e) => {
               <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300">₦</span>
               <input
                 name="price"
-                type="number"
+                type="text"
+                value={price}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/,/g, "");
+                  if (!/^\d*$/.test(raw)) return;
+                  setPrice(formatNumber(raw));
+                }}
                 placeholder="Price"
                 required
                 className="w-full pl-7 border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
               />
             </div>
           )}
+
 
           {/* Features */}
           {fieldReq.showFeatures && (
@@ -744,15 +751,16 @@ const handleSubmit = async (e) => {
           </div>
         </form>
 
-        <LoadingModal
-          key={Date.now()}
-          loading={loading}
-          success={success}
-          error={error}
-          message="Adding Property..."
-          successMessage="Property Added Successfully!"
-          errorMessage="Failed to add property. Try again."
-        />
+   <LoadingModal
+  key={Date.now()}
+  loading={loading}
+  success={success}
+  error={error}
+  message="Adding property… This may take a few minutes. Please wait."
+  successMessage="Property added successfully!"
+  errorMessage="Failed to add property. Please try again."
+/>
+
       </div>
     </div>
   );
