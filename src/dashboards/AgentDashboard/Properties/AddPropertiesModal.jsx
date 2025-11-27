@@ -388,22 +388,19 @@
 
 
 
-
-
-
 import React, { useState } from "react";
 import { propertyCategories, propertyFieldRequirements } from "../../../utils/propertyCategories";
 import LoadingModal from "../../../utils/loader";
 import AGENTAPI from "../../../utils/agentaxios";
 
 /* --------------------------------------------------------
-   ✅ CLOUDINARY UPLOAD (Images only)
+   CLOUDINARY UPLOAD (Images only)
 -------------------------------------------------------- */
 async function uploadToCloudinary(file) {
   const data = new FormData();
   data.append("file", file);
-  data.append("upload_preset", "testcloud"); // change to yours
-  data.append("cloud_name", "drt2ymnfm");    // change to yours
+  data.append("upload_preset", "testcloud");
+  data.append("cloud_name", "drt2ymnfm");
 
   const res = await fetch("https://api.cloudinary.com/v1_1/drt2ymnfm/auto/upload", {
     method: "POST",
@@ -417,10 +414,6 @@ async function uploadToCloudinary(file) {
   };
 }
 
-
-/* --------------------------------------------------------
-   ✅ MAIN COMPONENT
--------------------------------------------------------- */
 export default function AddPropertyModal({ show, onClose, onSubmit }) {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
@@ -441,8 +434,17 @@ export default function AddPropertyModal({ show, onClose, onSubmit }) {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  if (!show) return null;
+  /* --------------------------------------------------------
+     PRICE INPUT STATE + FORMATTER
+  -------------------------------------------------------- */
+  const [formattedPrice, setFormattedPrice] = useState("");
 
+  function formatNumber(value) {
+    if (!value) return "";
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  if (!show) return null;
   const fieldReq = propertyFieldRequirements[propertyType] || {};
 
   const rentDurations = ["Monthly", "Quarterly", "Bi-Annually", "Yearly"];
@@ -480,7 +482,7 @@ export default function AddPropertyModal({ show, onClose, onSubmit }) {
     setShowDurationSuggestions(true);
   };
 
-  // ------------------------- Image & Video Handlers -------------------------
+  // Image Upload
   const handleImagesChange = (e) => {
     const files = Array.from(e.target.files);
     setImagePreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
@@ -488,6 +490,7 @@ export default function AddPropertyModal({ show, onClose, onSubmit }) {
     e.target.value = null;
   };
 
+  // Video Upload
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -507,57 +510,54 @@ export default function AddPropertyModal({ show, onClose, onSubmit }) {
   };
 
   /* --------------------------------------------------------
-     ✅ SUBMIT HANDLER
+     SUBMIT HANDLER
   -------------------------------------------------------- */
-// ------------------------- SUBMIT HANDLER -------------------------
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError(false);
-  setSuccess(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(false);
+    setSuccess(false);
 
-  try {
-    // 1️⃣ Upload images to Cloudinary
-    const uploadedImages = await Promise.all(imageFiles.map(uploadToCloudinary));
+    try {
+      const uploadedImages = await Promise.all(imageFiles.map(uploadToCloudinary));
+      const uploadedVideos = await Promise.all(videoFiles.map(uploadToCloudinary));
 
-    // 2️⃣ Upload videos to Cloudinary (temporarily stored)
-    const uploadedVideos = await Promise.all(videoFiles.map(uploadToCloudinary));
+      const payload = {
+        type: propertyType,
+        title,
+        transactionType,
+        duration,
+        location: e.target.location.value,
 
-    // 3️⃣ Create property directly with Cloudinary video URLs
-    const payload = {
-      type: propertyType,
-      title,
-      transactionType,
-      duration,
-      location: e.target.location.value,
-      price: fieldReq.showPrice ? e.target.price.value : "",
-      features: fieldReq.showFeatures ? e.target.features.value : "",
-      area: fieldReq.showArea ? e.target.area.value : "",
-      bedrooms: fieldReq.showBedrooms ? e.target.bedrooms.value : "",
-      toilets: fieldReq.showToilets ? e.target.toilets.value : "",
-      images: uploadedImages.map((x) => x.url),
-      imageHashes: uploadedImages.map((x) => x.hash),
-      videos: uploadedVideos.map((x) => x.url), // ✅ use Cloudinary URLs
-      videoCloudHashes: uploadedVideos.map((x) => x.hash),
-    };
+        // 🔥 PRICE SENT AS CLEAN NUMBER WITHOUT COMMAS
+        price: fieldReq.showPrice ? formattedPrice.replace(/,/g, "") : "",
 
-    const createRes = await onSubmit(payload);
+        features: fieldReq.showFeatures ? e.target.features.value : "",
+        area: fieldReq.showArea ? e.target.area.value : "",
+        bedrooms: fieldReq.showBedrooms ? e.target.bedrooms.value : "",
+        toilets: fieldReq.showToilets ? e.target.toilets.value : "",
+        images: uploadedImages.map((x) => x.url),
+        imageHashes: uploadedImages.map((x) => x.hash),
+        videos: uploadedVideos.map((x) => x.url),
+        videoCloudHashes: uploadedVideos.map((x) => x.hash),
+      };
 
-    if (!createRes?._id) throw new Error("No property ID returned");
+      const createRes = await onSubmit(payload);
 
-    setSuccess(true);
-    setTimeout(() => onClose(), 2000);
-  } catch (err) {
-    console.error("Property upload error:", err);
-    setError(true);
-  } finally {
-    setLoading(false);
-  }
-};
+      if (!createRes?._id) throw new Error("No property ID returned");
 
+      setSuccess(true);
+      setTimeout(() => onClose(), 2000);
+    } catch (err) {
+      console.error("Property upload error:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /* --------------------------------------------------------
-     ✅ RENDER FORM
+     RENDER FORM
   -------------------------------------------------------- */
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
@@ -565,7 +565,7 @@ const handleSubmit = async (e) => {
         <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">Add Property</h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
-           {/* Property Type */}
+          {/* Property Type */}
           <select
             name="type"
             value={propertyType}
@@ -601,7 +601,7 @@ const handleSubmit = async (e) => {
               className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
             />
             {showSuggestions && suggestions.length > 0 && (
-              <ul className="absolute z-20 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 w-full max-h-40 overflow-y-auto rounded mt-1 shadow-md">
+              <ul className="absolute z-20 bg-white dark:bg-gray-800 border w-full max-h-40 overflow-y-auto rounded mt-1 shadow-md">
                 {suggestions.map((s, i) => (
                   <li
                     key={i}
@@ -609,7 +609,7 @@ const handleSubmit = async (e) => {
                       setTitle(s);
                       setShowSuggestions(false);
                     }}
-                    className="px-3 py-2 hover:bg-green-600 hover:text-white cursor-pointer dark:hover:bg-green-700"
+                    className="px-3 py-2 hover:bg-green-600 hover:text-white cursor-pointer"
                   >
                     {s}
                   </li>
@@ -649,7 +649,7 @@ const handleSubmit = async (e) => {
                 className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
               />
               {showDurationSuggestions && durationSuggestions.length > 0 && (
-                <ul className="absolute z-20 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 w-full max-h-40 overflow-y-auto rounded mt-1 shadow-md">
+                <ul className="absolute z-20 bg-white dark:bg-gray-800 border w-full max-h-40 overflow-y-auto rounded mt-1 shadow-md">
                   {durationSuggestions.map((d, i) => (
                     <li
                       key={i}
@@ -657,7 +657,7 @@ const handleSubmit = async (e) => {
                         setDuration(d);
                         setShowDurationSuggestions(false);
                       }}
-                      className="px-3 py-2 hover:bg-green-600 hover:text-white cursor-pointer dark:hover:bg-green-700"
+                      className="px-3 py-2 hover:bg-green-600 hover:text-white cursor-pointer"
                     >
                       {d}
                     </li>
@@ -675,18 +675,21 @@ const handleSubmit = async (e) => {
             className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
           />
 
-          {/* Price */}
+          {/* PRICE WITH AUTO COMMA FORMATTING */}
           {fieldReq.showPrice && (
             <div className="relative w-full">
-              <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300">₦</span>
+              <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-300">
+                ₦
+              </span>
+
               <input
                 name="price"
-                type="text"
-                value={price}
+                value={formattedPrice}
                 onChange={(e) => {
                   const raw = e.target.value.replace(/,/g, "");
-                  if (!/^\d*$/.test(raw)) return;
-                  setPrice(formatNumber(raw));
+                  if (!isNaN(raw)) {
+                    setFormattedPrice(formatNumber(raw));
+                  }
                 }}
                 placeholder="Price"
                 required
@@ -694,7 +697,6 @@ const handleSubmit = async (e) => {
               />
             </div>
           )}
-
 
           {/* Features */}
           {fieldReq.showFeatures && (
@@ -705,10 +707,31 @@ const handleSubmit = async (e) => {
             />
           )}
 
-          {/* Area, Bedrooms, Toilets */}
-          {fieldReq.showArea && <input name="area" placeholder="Area (e.g. Sqm)" className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" />}
-          {fieldReq.showBedrooms && <input name="bedrooms" type="number" placeholder="Bedrooms" className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" />}
-          {fieldReq.showToilets && <input name="toilets" type="number" placeholder="Toilets" className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" />}
+          {fieldReq.showArea && (
+            <input
+              name="area"
+              placeholder="Area (e.g. Sqm)"
+              className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+            />
+          )}
+
+          {fieldReq.showBedrooms && (
+            <input
+              name="bedrooms"
+              type="number"
+              placeholder="Bedrooms"
+              className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+            />
+          )}
+
+          {fieldReq.showToilets && (
+            <input
+              name="toilets"
+              type="number"
+              placeholder="Toilets"
+              className="w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+            />
+          )}
 
           {/* Images */}
           <label htmlFor="imageUpload" className="cursor-pointer flex items-center justify-center border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-md p-4 hover:border-green-600 transition">
@@ -719,14 +742,16 @@ const handleSubmit = async (e) => {
             <div className="flex flex-wrap gap-2 mt-2">
               {imagePreviews.map((src, i) => (
                 <div key={i} className="relative">
-                  <img src={src} alt="" className="w-20 h-20 object-cover rounded" />
-                  <button type="button" onClick={() => handleRemoveImage(i)} className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1">×</button>
+                  <img src={src} className="w-20 h-20 object-cover rounded" />
+                  <button type="button" onClick={() => handleRemoveImage(i)} className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1">
+                    ×
+                  </button>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Videos */}
+          {/* Video */}
           <label htmlFor="videoUpload" className="cursor-pointer flex items-center justify-center border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-md p-4 hover:border-green-600 transition">
             <span className="text-gray-600 dark:text-gray-300">Upload a Property Video</span>
           </label>
@@ -736,31 +761,34 @@ const handleSubmit = async (e) => {
               {videoPreviews.map((src, i) => (
                 <div key={i} className="relative">
                   <video src={src} controls className="w-32 h-20 rounded" />
-                  <button type="button" onClick={() => handleRemoveVideo(i)} className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1">×</button>
+                  <button type="button" onClick={() => handleRemoveVideo(i)} className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1">
+                    ×
+                  </button>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Buttons */}
           <div className="flex justify-end gap-2 mt-3">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-gray-300 dark:bg-gray-700 dark:text-gray-100" disabled={loading || success}>Cancel</button>
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-gray-300 dark:bg-gray-700 dark:text-gray-100" disabled={loading || success}>
+              Cancel
+            </button>
+
             <button type="submit" className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700" disabled={loading || success}>
               {loading ? "Uploading..." : "Add"}
             </button>
           </div>
         </form>
 
-   <LoadingModal
-  key={Date.now()}
-  loading={loading}
-  success={success}
-  error={error}
-  message="Adding property… This may take a few minutes. Please wait."
-  successMessage="Property added successfully!"
-  errorMessage="Failed to add property. Please try again."
-/>
-
+        <LoadingModal
+          key={Date.now()}
+          loading={loading}
+          success={success}
+          error={error}
+          message="Adding Property... This may take some minutes please wait."
+          successMessage="Property Added Successfully!"
+          errorMessage="Failed to add property. Try again."
+        />
       </div>
     </div>
   );
