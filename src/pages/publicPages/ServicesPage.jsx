@@ -194,7 +194,7 @@ export default function ServicesPage() {
 
   return (
     <div className="bg-gray-200 py-20 px-2 md:px-6 min-h-screen">
-      <div className="max-w-4xl md:max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto">
 
         {/* Toggle Tabs */}
         <div className="flex justify-center gap-6 mb-16">
@@ -203,7 +203,7 @@ export default function ServicesPage() {
               key={key}
               onClick={() => handleTabChange(key)}
               style={activeTab === key ? { backgroundColor: ACTIVE, borderColor: ACTIVE } : undefined}
-              className={`px-10 py-4 rounded-xl font-bold uppercase tracking-widest transition-all duration-300 border ${
+              className={`px-5 md:px-10 py-4 rounded-xl font-bold uppercase tracking-widest transition-all duration-300 border ${
                 activeTab === key
                 ? 'text-white shadow-md'
                 : 'bg-white border-gray-300 text-gray-500 hover:border-gray-400'
