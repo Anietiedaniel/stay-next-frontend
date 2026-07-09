@@ -17,7 +17,7 @@ import {
 
 const AboutUsPage = () => {
   return (
-    <div className="min-h-screen bg-stone-50 text-gray-800 mt-52">
+    <div className="min-h-screen bg-stone-50 text-gray-800 mt-24">
 
       {/* TOP HERO */}
       <section className="relative overflow-hidden bg-[#0A203F] py-24 px-6">
