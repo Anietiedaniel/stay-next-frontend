@@ -150,19 +150,16 @@ export default function ServicesPage() {
     ]
   };
 
-  // Muted, near-neutral theme: deep sage green + near-black plum purple
+  // Active tab/chip state uses one fixed brand color; icon accents stay per-category
+  const ACTIVE = '#15803D';
   const theme = {
     green: {
-      tabActive: 'bg-green-300 border-stone-800',
-      chipActive: 'bg-stone-800 border-stone-800 text-white',
       iconBg: 'bg-stone-100',
       iconText: 'text-emerald-800',
       link: 'text-emerald-800 hover:text-emerald-900',
       cardBorderActive: 'border-emerald-800'
     },
     purple: {
-      tabActive: 'bg-green-400 border-stone-900',
-      chipActive: 'bg-stone-900 border-stone-900 text-white',
       iconBg: 'bg-stone-100',
       iconText: 'text-purple-950',
       link: 'text-purple-950 hover:text-black',
@@ -205,9 +202,10 @@ export default function ServicesPage() {
             <button
               key={key}
               onClick={() => handleTabChange(key)}
+              style={activeTab === key ? { backgroundColor: ACTIVE, borderColor: ACTIVE } : undefined}
               className={`px-10 py-4 rounded-xl font-bold uppercase tracking-widest transition-all duration-300 border ${
                 activeTab === key
-                ? `${theme[data[key].color].tabActive} text-white shadow-md`
+                ? 'text-white shadow-md'
                 : 'bg-white border-gray-300 text-gray-500 hover:border-gray-400'
               }`}
             >
@@ -238,9 +236,10 @@ export default function ServicesPage() {
           <div className="flex flex-wrap gap-3 mb-10">
             <button
               onClick={() => setRoleFilter('All')}
+              style={roleFilter === 'All' ? { backgroundColor: ACTIVE, borderColor: ACTIVE } : undefined}
               className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wide border transition ${
                 roleFilter === 'All'
-                ? t.chipActive
+                ? 'text-white'
                 : 'bg-white border-gray-300 text-gray-500 hover:border-gray-400'
               }`}
             >
@@ -250,9 +249,10 @@ export default function ServicesPage() {
               <button
                 key={role}
                 onClick={() => setRoleFilter(role)}
+                style={roleFilter === role ? { backgroundColor: ACTIVE, borderColor: ACTIVE } : undefined}
                 className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wide border transition ${
                   roleFilter === role
-                  ? t.chipActive
+                  ? 'text-white'
                   : 'bg-white border-gray-300 text-gray-500 hover:border-gray-400'
                 }`}
               >
