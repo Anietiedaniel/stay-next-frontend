@@ -193,8 +193,8 @@ export default function ServicesPage() {
   const t = theme[color];
 
   return (
-    <div className="bg-gray-200 py-20 px-6 min-h-screen">
-      <div className="max-w-6xl mx-auto">
+    <div className="bg-gray-200 py-20 px-2 md:px-6 min-h-screen">
+      <div className="max-w-4xl md:max-w-6xl mx-auto">
 
         {/* Toggle Tabs */}
         <div className="flex justify-center gap-6 mb-16">
