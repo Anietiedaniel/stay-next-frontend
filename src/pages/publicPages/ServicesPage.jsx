@@ -65,8 +65,6 @@
 // export default ServicesPage;
 
 
-
-
 import React, { useState, useMemo } from 'react';
 
 export default function ServicesPage() {
@@ -153,6 +151,26 @@ export default function ServicesPage() {
     ]
   };
 
+  // Static class map (avoids Tailwind JIT purge issues with template-literal colors)
+  const theme = {
+    blue: {
+      tabActive: 'bg-blue-600 border-blue-600',
+      chipActive: 'bg-blue-600 border-blue-600 text-white',
+      iconBg: 'bg-blue-50',
+      iconText: 'text-blue-600',
+      link: 'text-blue-600 hover:text-blue-700',
+      cardBorderActive: 'border-blue-500'
+    },
+    red: {
+      tabActive: 'bg-red-600 border-red-600',
+      chipActive: 'bg-red-600 border-red-600 text-white',
+      iconBg: 'bg-red-50',
+      iconText: 'text-red-600',
+      link: 'text-red-600 hover:text-red-700',
+      cardBorderActive: 'border-red-500'
+    }
+  };
+
   const roles = data[activeTab].items.map(i => i.title);
 
   const filteredPeople = useMemo(() => {
@@ -176,9 +194,10 @@ export default function ServicesPage() {
   };
 
   const color = data[activeTab].color;
+  const t = theme[color];
 
   return (
-    <div className="bg-[#0f172a] py-20 px-6 min-h-screen">
+    <div className="bg-gray-50 py-20 px-6 min-h-screen">
       <div className="max-w-6xl mx-auto">
 
         {/* Toggle Tabs */}
@@ -189,8 +208,8 @@ export default function ServicesPage() {
               onClick={() => handleTabChange(key)}
               className={`px-10 py-4 rounded-xl font-bold uppercase tracking-widest transition-all duration-300 border ${
                 activeTab === key
-                ? `${key === 'professionals' ? 'bg-blue-600 border-blue-600' : 'bg-red-600 border-red-600'} text-white shadow-xl`
-                : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/30'
+                ? `${theme[data[key].color].tabActive} text-white shadow-md`
+                : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'
               }`}
             >
               {key}
@@ -198,42 +217,20 @@ export default function ServicesPage() {
           ))}
         </div>
 
-        {/* Category cards */}
-        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-          {data[activeTab].items.map((item, i) => (
-            <div
-              key={i}
-              onClick={() => setRoleFilter(item.title)}
-              className={`cursor-pointer group bg-white/5 border p-8 rounded-2xl backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:-translate-y-2 ${
-                roleFilter === item.title ? `border-${color}-500` : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <div className={`w-14 h-14 rounded-full bg-${color}-500/20 flex items-center justify-center mb-6 text-2xl text-${color}-400 group-hover:scale-110 transition-transform`}>
-                <i className={item.icon}></i>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
-              <span className="mt-6 text-sm font-semibold text-white hover:text-blue-300 flex items-center gap-2 transition">
-                View {item.title}s <i className="fa-solid fa-arrow-right text-xs"></i>
-              </span>
-            </div>
-          ))}
-        </div> */}
-
         {/* People directory */}
         <div>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-            <h2 className="text-2xl font-bold text-white">
+            <h2 className="text-2xl font-bold text-gray-900">
               Meet Our {data[activeTab].title}
             </h2>
             <div className="relative w-full md:w-80">
-              <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+              <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name or role..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/30"
+                className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 shadow-sm"
               />
             </div>
           </div>
@@ -244,8 +241,8 @@ export default function ServicesPage() {
               onClick={() => setRoleFilter('All')}
               className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wide border transition ${
                 roleFilter === 'All'
-                ? `bg-${color}-600 border-${color}-600 text-white`
-                : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/30'
+                ? t.chipActive
+                : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'
               }`}
             >
               All
@@ -256,8 +253,8 @@ export default function ServicesPage() {
                 onClick={() => setRoleFilter(role)}
                 className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wide border transition ${
                   roleFilter === role
-                  ? `bg-${color}-600 border-${color}-600 text-white`
-                  : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/30'
+                  ? t.chipActive
+                  : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'
                 }`}
               >
                 {role}
@@ -267,7 +264,7 @@ export default function ServicesPage() {
 
           {/* People grid */}
           {filteredPeople.length === 0 ? (
-            <div className="text-center py-16 text-gray-500 text-sm">
+            <div className="text-center py-16 text-gray-400 text-sm">
               No one matches that search.
             </div>
           ) : (
@@ -275,19 +272,19 @@ export default function ServicesPage() {
               {filteredPeople.map((p, i) => (
                 <div
                   key={i}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/30 transition-all duration-300"
+                  className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-300"
                 >
                   <div className="flex items-center gap-4 mb-4">
-                    <div className={`w-12 h-12 rounded-full bg-${color}-500/20 flex items-center justify-center text-sm font-bold text-${color}-400`}>
+                    <div className={`w-12 h-12 rounded-full ${t.iconBg} flex items-center justify-center text-sm font-bold ${t.iconText}`}>
                       {p.initials}
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-sm">{p.name}</h4>
-                      <p className="text-gray-500 text-xs">{p.role}</p>
+                      <h4 className="text-gray-900 font-bold text-sm">{p.name}</h4>
+                      <p className="text-gray-400 text-xs">{p.role}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                     <span className="flex items-center gap-1">
                       <i className="fa-solid fa-star text-yellow-400"></i>
                       {p.rating} ({p.reviews})
@@ -295,9 +292,9 @@ export default function ServicesPage() {
                     <span>{p.exp} yrs exp</span>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-white/10 pt-4">
-                    <span className="text-white font-semibold text-sm">{p.rate}</span>
-                    <button className={`text-xs font-bold text-${color}-400 hover:text-${color}-300 flex items-center gap-1 transition`}>
+                  <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+                    <span className="text-gray-900 font-semibold text-sm">{p.rate}</span>
+                    <button className={`text-xs font-bold ${t.link} flex items-center gap-1 transition`}>
                       Book <i className="fa-solid fa-arrow-right text-[10px]"></i>
                     </button>
                   </div>
