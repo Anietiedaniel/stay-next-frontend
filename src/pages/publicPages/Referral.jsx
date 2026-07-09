@@ -200,7 +200,7 @@ const AboutUsPage = () => {
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="bg-stone-900 p-9 rounded-2xl shadow-xl"
+            className="bg-[#0A203F] p-9 rounded-2xl shadow-xl"
           >
             <div className="w-16 h-16 rounded-xl bg-emerald-500/15 flex items-center justify-center mb-6">
               <ShieldCheck size={32} className="text-emerald-400" strokeWidth={1.75} />
@@ -262,7 +262,7 @@ const AboutUsPage = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="bg-stone-900 text-white p-12 rounded-3xl text-center shadow-xl relative overflow-hidden"
+          className="bg-[#0A203F] text-white p-12 rounded-3xl text-center shadow-xl relative overflow-hidden"
         >
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_80%_20%,#10b981_0%,transparent_60%)]" />
           <div className="relative">
