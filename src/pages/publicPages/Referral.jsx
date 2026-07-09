@@ -20,10 +20,10 @@ const AboutUsPage = () => {
     <div className="min-h-screen bg-stone-50 text-gray-800">
 
       {/* TOP HERO */}
-      <section className="relative overflow-hidden bg-stone-900 py-24 px-6">
+      <section className="relative overflow-hidden bg-purple-700 py-24 px-6">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_20%,#ffffff_1px,transparent_1px)] bg-[length:24px_24px]" />
         <div className="relative max-w-5xl mx-auto text-center">
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 mb-6"
@@ -32,7 +32,7 @@ const AboutUsPage = () => {
             <span className="text-xs font-semibold tracking-widest uppercase text-white/80">
               PropTech, reimagined
             </span>
-          </motion.div>
+          </motion.div> */}
 
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
