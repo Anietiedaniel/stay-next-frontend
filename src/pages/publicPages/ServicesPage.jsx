@@ -64,7 +64,6 @@
 
 // export default ServicesPage;
 
-
 import React, { useState, useMemo } from 'react';
 
 export default function ServicesPage() {
@@ -75,7 +74,7 @@ export default function ServicesPage() {
   const data = {
     professionals: {
       title: "Licensed Professionals",
-      color: "blue",
+      color: "green",
       items: [
         { title: "Civil Engineer", icon: "fa-solid fa-hard-hat", desc: "Structural integrity and safety compliance." },
         { title: "Architect", icon: "fa-solid fa-compass-drafting", desc: "Innovative building design and 3D modeling." },
@@ -87,7 +86,7 @@ export default function ServicesPage() {
     },
     artisans: {
       title: "Expert Artisans",
-      color: "red",
+      color: "purple",
       items: [
         { title: "Plumber", icon: "fa-solid fa-faucet-drip", desc: "Pipeline installation and leak solutions." },
         { title: "Electrician", icon: "fa-solid fa-bolt", desc: "Certified wiring and lighting installation." },
@@ -151,23 +150,23 @@ export default function ServicesPage() {
     ]
   };
 
-  // Static class map (avoids Tailwind JIT purge issues with template-literal colors)
+  // Muted, near-neutral theme: deep sage green + near-black plum purple
   const theme = {
-    blue: {
-      tabActive: 'bg-blue-600 border-blue-600',
-      chipActive: 'bg-blue-600 border-blue-600 text-white',
-      iconBg: 'bg-blue-50',
-      iconText: 'text-blue-600',
-      link: 'text-blue-600 hover:text-blue-700',
-      cardBorderActive: 'border-blue-500'
+    green: {
+      tabActive: 'bg-stone-800 border-stone-800',
+      chipActive: 'bg-stone-800 border-stone-800 text-white',
+      iconBg: 'bg-stone-100',
+      iconText: 'text-emerald-800',
+      link: 'text-emerald-800 hover:text-emerald-900',
+      cardBorderActive: 'border-emerald-800'
     },
-    red: {
-      tabActive: 'bg-red-600 border-red-600',
-      chipActive: 'bg-red-600 border-red-600 text-white',
-      iconBg: 'bg-red-50',
-      iconText: 'text-red-600',
-      link: 'text-red-600 hover:text-red-700',
-      cardBorderActive: 'border-red-500'
+    purple: {
+      tabActive: 'bg-stone-900 border-stone-900',
+      chipActive: 'bg-stone-900 border-stone-900 text-white',
+      iconBg: 'bg-stone-100',
+      iconText: 'text-purple-950',
+      link: 'text-purple-950 hover:text-black',
+      cardBorderActive: 'border-purple-950'
     }
   };
 
@@ -209,7 +208,7 @@ export default function ServicesPage() {
               className={`px-10 py-4 rounded-xl font-bold uppercase tracking-widest transition-all duration-300 border ${
                 activeTab === key
                 ? `${theme[data[key].color].tabActive} text-white shadow-md`
-                : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'
+                : 'bg-white border-gray-300 text-gray-500 hover:border-gray-400'
               }`}
             >
               {key}
@@ -230,7 +229,7 @@ export default function ServicesPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name or role..."
-                className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 shadow-sm"
+                className="w-full bg-white border border-gray-300 rounded-xl py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-500 shadow-sm"
               />
             </div>
           </div>
@@ -242,7 +241,7 @@ export default function ServicesPage() {
               className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wide border transition ${
                 roleFilter === 'All'
                 ? t.chipActive
-                : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'
+                : 'bg-white border-gray-300 text-gray-500 hover:border-gray-400'
               }`}
             >
               All
@@ -254,7 +253,7 @@ export default function ServicesPage() {
                 className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wide border transition ${
                   roleFilter === role
                   ? t.chipActive
-                  : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'
+                  : 'bg-white border-gray-300 text-gray-500 hover:border-gray-400'
                 }`}
               >
                 {role}
@@ -272,7 +271,7 @@ export default function ServicesPage() {
               {filteredPeople.map((p, i) => (
                 <div
                   key={i}
-                  className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-300"
+                  className="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-gray-400 transition-all duration-300"
                 >
                   <div className="flex items-center gap-4 mb-4">
                     <div className={`w-12 h-12 rounded-full ${t.iconBg} flex items-center justify-center text-sm font-bold ${t.iconText}`}>
@@ -286,13 +285,13 @@ export default function ServicesPage() {
 
                   <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                     <span className="flex items-center gap-1">
-                      <i className="fa-solid fa-star text-yellow-400"></i>
+                      <i className="fa-solid fa-star text-yellow-500"></i>
                       {p.rating} ({p.reviews})
                     </span>
                     <span>{p.exp} yrs exp</span>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+                  <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                     <span className="text-gray-900 font-semibold text-sm">{p.rate}</span>
                     <button className={`text-xs font-bold ${t.link} flex items-center gap-1 transition`}>
                       Book <i className="fa-solid fa-arrow-right text-[10px]"></i>
