@@ -14,8 +14,8 @@ function Header() {
 
   const navItemsLeft = [
     { label: 'Properties', path: '/properties' },
-    { label: 'Find my Agents', path: '/find-agents' },
-    { label: 'Professionals', path: '/building' },
+    { label: 'Find Agents', path: '/find-agents' },
+    { label: 'Our Services', path: '/building' },
   ];
 
   const navItemsRight = [
@@ -97,13 +97,15 @@ function Header() {
           <i className={`text-gray-900 fas ${menuOpen ? "fa-times" : "fa-bars"}`}></i>
         </button>
         <Link to="/" className="mx-10">
-          <img src={logo} alt="company logo" className="h-14 w-14" />
+          <img src={logo} alt="company logo" className="h-16 w-18" />
         </Link>
         <button onClick={() => setShowLanguageModal(true)} className="flex gap-2 items-center text-[13px] hover:text-[#22965D]">
           <i className="fas fa-globe text-gray-900 text-[18px]"></i>
           <span className="text-[18px] text-gray-900">{selectedLanguage}</span>
         </button>
       </div>
+
+
 
       {/* ---------------------------- */}
       {/*     DESKTOP STICKY HEADER    */}
@@ -141,7 +143,7 @@ function Header() {
             <div className="flex items-center gap-5 w-full justify-center">
               {navItemsLeft.map((item, i) => <NavLink key={i} item={item} />)}
               <Link to="/" className="mx-10">
-                <img src={logo} alt="company logo" className="h-14 w-14" />
+                <img src={logo} alt="company logo" className="h-20 w-25" />
               </Link>
               {navItemsRight.map((item, i) => <NavLink key={i + navItemsLeft.length} item={item} />)}
             </div>
