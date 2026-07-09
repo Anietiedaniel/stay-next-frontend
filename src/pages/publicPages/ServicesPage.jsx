@@ -153,7 +153,7 @@ export default function ServicesPage() {
   // Muted, near-neutral theme: deep sage green + near-black plum purple
   const theme = {
     green: {
-      tabActive: 'bg-stone-800 border-stone-800',
+      tabActive: 'bg-green-300 border-stone-800',
       chipActive: 'bg-stone-800 border-stone-800 text-white',
       iconBg: 'bg-stone-100',
       iconText: 'text-emerald-800',
@@ -161,7 +161,7 @@ export default function ServicesPage() {
       cardBorderActive: 'border-emerald-800'
     },
     purple: {
-      tabActive: 'bg-stone-900 border-stone-900',
+      tabActive: 'bg-green-400 border-stone-900',
       chipActive: 'bg-stone-900 border-stone-900 text-white',
       iconBg: 'bg-stone-100',
       iconText: 'text-purple-950',
