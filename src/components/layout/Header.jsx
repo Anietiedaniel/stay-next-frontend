@@ -143,7 +143,7 @@ function Header() {
             <div className="flex items-center gap-5 w-full justify-center">
               {navItemsLeft.map((item, i) => <NavLink key={i} item={item} />)}
               <Link to="/" className="mx-10">
-                <img src={logo} alt="company logo" className="h-20 w-25" />
+                <img src={logo} alt="company logo" className="h-10 w-20" />
               </Link>
               {navItemsRight.map((item, i) => <NavLink key={i + navItemsLeft.length} item={item} />)}
             </div>
