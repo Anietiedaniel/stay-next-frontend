@@ -15,12 +15,12 @@ function Header() {
   const navItemsLeft = [
     { label: 'Properties', path: '/properties' },
     { label: 'Find Agents', path: '/find-agents' },
-    { label: 'Our Services', path: '/building' },
+    // { label: 'Our Services', path: '/building' },
   ];
 
   const navItemsRight = [
     { label: 'Service Provider', path: '/services' },
-    { label: 'Guides', path: '/guides' },
+    // { label: 'Guides', path: '/guides' },
     { label: 'About Us', path: '/about' },
   ];
 
