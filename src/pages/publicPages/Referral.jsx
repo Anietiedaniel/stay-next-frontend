@@ -20,7 +20,7 @@ const AboutUsPage = () => {
     <div className="min-h-screen bg-stone-50 text-gray-800">
 
       {/* TOP HERO */}
-      <section className="relative overflow-hidden bg-purple-700 py-24 px-6">
+      <section className="relative overflow-hidden bg-[#0A203F] py-24 px-6">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_20%,#ffffff_1px,transparent_1px)] bg-[length:24px_24px]" />
         <div className="relative max-w-5xl mx-auto text-center">
           {/* <motion.div
