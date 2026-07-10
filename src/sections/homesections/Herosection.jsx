@@ -52,7 +52,7 @@ function Herosection() {
 
         <div className="relative z-30 py-20 sm:py-32 text-white max-w-6xl mx-auto text-center px-4">
           <h1 className="text-4xl sm:text-4xl md:text-5xl font-bold mb-6 tracking-tight">
-            Propertyzone Limited
+            PropertyZone Limited
           </h1>
           
           {/* Typing Effect Tagline */}
