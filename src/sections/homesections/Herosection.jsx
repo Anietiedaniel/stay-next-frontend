@@ -12,7 +12,7 @@ function Herosection() {
   const [currentBg, setCurrentBg] = useState(0);
   const [text, setText] = useState("");
   const [phraseIndex, setPhraseIndex] = useState(0);
-  const phrases = ["Connecting People to Properties and Possibilities."];
+  const phrases = ["Connecting People, Properties and Possibilities."];
   
   const images = [backgroundImage, bgHome, bgHome2, bgHome3, bgHome4];
   const navigate = useNavigate();
